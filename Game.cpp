@@ -131,13 +131,13 @@ static void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player,
     const Vector2 topLeftScreen = { (1 - bbox.x) * 0.5f * width, (1 - bbox.y) * 0.5f * height };
     const Vector2 bottomRightScreen = { (1 + bbox.x) * 0.5f * width, (1 + bbox.y) * 0.5f * height };
 
-    const Vector2 worldTL = GetScreenToWorld2D(topLeftScreen, *camera);
-    const Vector2 worldBR = GetScreenToWorld2D(bottomRightScreen, *camera);
+    const auto [x, y] = GetScreenToWorld2D(topLeftScreen, *camera);
+    const auto [a, b] = GetScreenToWorld2D(bottomRightScreen, *camera);
 
     camera->offset = topLeftScreen;
 
-    const float x_1 = worldTL.x; const float y_1 = worldTL.y;
-    const float x_2 = worldBR.x; const float y_2 = worldBR.y;
+    const float x_1 = x; const float y_1 = y;
+    const float x_2 = a; const float y_2 = b;
 
     if (player->position.x < x_1)
     {
@@ -157,8 +157,8 @@ static void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player,
     }
 }
 
-Game::Game(int screenW, int screenH)
-    : screenWidth(screenW), screenHeight(screenH)
+Game::Game(const int screenWidth, const int screenHeight)
+    : screenWidth(screenWidth), screenHeight(screenHeight)
 {
     InitScene();
 
@@ -171,7 +171,7 @@ Game::Game(int screenW, int screenH)
     };
 }
 
-Game::~Game() {}
+Game::~Game() = default;
 
 void Game::InitScene()
 {
@@ -190,12 +190,12 @@ void Game::InitScene()
 
     camera = {};
     camera.target = player.position;
-    camera.offset = (Vector2){ screenWidth/2.0f, screenHeight/2.0f };
+    camera.offset = (Vector2){ static_cast<float>(screenWidth) / 2.0f, static_cast<float>(screenHeight) / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 }
 
-void Game::UpdatePlayer(float delta)
+void Game::UpdatePlayer(const float delta)
 {
     if (IsKeyDown(KEY_LEFT))
     {
@@ -212,12 +212,11 @@ void Game::UpdatePlayer(float delta)
     }
 
     bool hitObstacle = false;
-    const int envItemsLength = (int)envItems.size();
+    const int envItemsLength = static_cast<int>(envItems.size());
     for (int i = 0; i < envItemsLength; i++)
     {
         const EnvItem *ei = envItems.data() + i;
-        Player *p = &player;
-        if (ei->blocking &&
+        if (Player *p = &player; ei->blocking &&
             ei->rect.x <= p->position.x &&
             ei->rect.x + ei->rect.width >= p->position.x &&
             ei->rect.y >= p->position.y &&
@@ -260,9 +259,13 @@ void Game::Update(float delta)
         player.position = (Vector2) { 400, 280 };
     }
 
-    if (IsKeyPressed(KEY_C)) cameraOption = (cameraOption + 1) % (int)cameraUpdaters.size();
+    if (IsKeyPressed(KEY_C))
+    {
+        cameraOption = (cameraOption + 1) % static_cast<int>(cameraUpdaters.size());
+    }
 
-    cameraUpdaters[cameraOption](&camera, &player, envItems.data(), (int)envItems.size(), delta, (float)screenWidth, (float)screenHeight);
+    cameraUpdaters[cameraOption](&camera, &player, envItems.data(), static_cast<int>(envItems.size()),
+        delta, static_cast<float>(screenWidth), static_cast<float>(screenHeight));
 }
 
 void Game::Draw()
@@ -273,9 +276,9 @@ void Game::Draw()
 
         BeginMode2D(camera);
 
-            for (auto &ei : envItems)
+            for (auto &[rect, blocking, color] : envItems)
             {
-                DrawRectangleRec(ei.rect, ei.color);
+                DrawRectangleRec(rect, color);
             }
 
             const Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
