@@ -1,0 +1,296 @@
+#include "Game.h"
+#include "raylib.h"
+#include "raymath.h"
+
+#include <cmath>
+
+#define G 400
+#define PLAYER_JUMP_SPD 350.0f
+#define PLAYER_HOR_SPD 200.0f
+
+static void UpdateCameraCenter(Camera2D *camera, Player *player,
+    EnvItem *envItems, int envItemsLength,
+    float delta, const float width, const float height)
+{
+    camera->offset = (Vector2){ width / 2.0f, height / 2.0f };
+    camera->target = player->position;
+}
+
+static void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player,
+    EnvItem *envItems, int envItemsLength,
+    float delta, const float width, const float height)
+{
+    camera->target = player->position;
+    camera->offset = (Vector2) { width / 2.0f, height / 2.0f };
+
+    float minX = 1000, minY = 1000, maxX = -1000, maxY = -1000;
+
+    for (int i = 0; i < envItemsLength; i++)
+    {
+        const EnvItem *ei = envItems + i;
+
+        minX = fminf(ei->rect.x, minX);
+        maxX = fmaxf(ei->rect.x + ei->rect.width, maxX);
+        minY = fminf(ei->rect.y, minY);
+        maxY = fmaxf(ei->rect.y + ei->rect.height, maxY);
+    }
+
+    const Vector2 maxWorld{ maxX, maxY };
+    const Vector2 minWorld{ minX, minY };
+
+    const Vector2 maxScreen = GetWorldToScreen2D(maxWorld, *camera);
+    const Vector2 minScreen = GetWorldToScreen2D(minWorld, *camera);
+
+    if (maxScreen.x < width)
+    {
+        camera->offset.x = width - (maxScreen.x - width / 2);
+    }
+    if (maxScreen.y < height)
+    {
+        camera->offset.y = height - (maxScreen.y - height / 2);
+    }
+    if (minScreen.x > 0)
+    {
+        camera->offset.x = width / 2 - minScreen.x;
+    }
+    if (minScreen.y > 0)
+    {
+        camera->offset.y = height / 2 - minScreen.y;
+    }
+}
+
+static void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player,
+    EnvItem *envItems, int envItemsLength,
+    const float delta, const float width, const float height)
+{
+    static float minSpeed = 30;
+    static float minEffectLength = 10;
+    static float fractionSpeed = 0.8f;
+
+    camera->offset = (Vector2){ width / 2.0f, height / 2.0f };
+    const Vector2 diff = Vector2Subtract(player->position, camera->target);
+
+    const float length = Vector2Length(diff);
+    if (length > minEffectLength)
+    {
+        const float speed = fmaxf(fractionSpeed*length, minSpeed);
+        camera->target = Vector2Add(camera->target, Vector2Scale(diff, speed*delta/length));
+    }
+}
+
+static void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player,
+    EnvItem *envItems, int envItemsLength,
+    const float delta, const float width, const float height)
+{
+    static float evenOutSpeed = 700;
+    static int eveningOut = false;
+    static float evenOutTarget;
+
+    camera->offset = (Vector2){ width/2.0f, height/2.0f };
+    camera->target.x = player->position.x;
+
+    if (eveningOut)
+    {
+        if (evenOutTarget > camera->target.y)
+        {
+            camera->target.y += evenOutSpeed*delta;
+
+            if (camera->target.y > evenOutTarget)
+            {
+                camera->target.y = evenOutTarget;
+                eveningOut = 0;
+            }
+        }
+        else
+        {
+            camera->target.y -= evenOutSpeed*delta;
+
+            if (camera->target.y < evenOutTarget)
+            {
+                camera->target.y = evenOutTarget;
+                eveningOut = 0;
+            }
+        }
+    }
+    else
+    {
+        if (player->canJump && player->speed == 0 && player->position.y != camera->target.y)
+        {
+            eveningOut = 1;
+            evenOutTarget = player->position.y;
+        }
+    }
+}
+
+static void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player,
+    EnvItem *envItems, int envItemsLength,
+    float delta, const float width, const float height)
+{
+    static Vector2 bbox = { 0.2f, 0.2f };
+
+    const Vector2 topLeftScreen = { (1 - bbox.x) * 0.5f * width, (1 - bbox.y) * 0.5f * height };
+    const Vector2 bottomRightScreen = { (1 + bbox.x) * 0.5f * width, (1 + bbox.y) * 0.5f * height };
+
+    const Vector2 worldTL = GetScreenToWorld2D(topLeftScreen, *camera);
+    const Vector2 worldBR = GetScreenToWorld2D(bottomRightScreen, *camera);
+
+    camera->offset = topLeftScreen;
+
+    const float x_1 = worldTL.x; const float y_1 = worldTL.y;
+    const float x_2 = worldBR.x; const float y_2 = worldBR.y;
+
+    if (player->position.x < x_1)
+    {
+        camera->target.x = player->position.x;
+    }
+    if (player->position.y < y_1)
+    {
+        camera->target.y = player->position.y;
+    }
+    if (player->position.x > x_2)
+    {
+        camera->target.x = x_1 + (player->position.x - x_2);
+    }
+    if (player->position.y > y_2)
+    {
+        camera->target.y = y_1 + (player->position.y - y_2);
+    }
+}
+
+Game::Game(int screenW, int screenH)
+    : screenWidth(screenW), screenHeight(screenH)
+{
+    InitScene();
+
+    cameraUpdaters = {
+        UpdateCameraCenter,
+        UpdateCameraCenterInsideMap,
+        UpdateCameraCenterSmoothFollow,
+        UpdateCameraEvenOutOnLanding,
+        UpdateCameraPlayerBoundsPush
+    };
+}
+
+Game::~Game() {}
+
+void Game::InitScene()
+{
+    player = {};
+    player.position = (Vector2){ 400, 280 };
+    player.speed = 0;
+    player.canJump = false;
+
+    envItems = {
+        EnvItem{ { 0, 0, 1000, 400 }, 0, LIGHTGRAY },
+        EnvItem{ { 0, 400, 1000, 200 }, 1, GRAY },
+        EnvItem{ { 300, 200, 400, 10 }, 1, GRAY },
+        EnvItem{ { 250, 300, 100, 10 }, 1, GRAY },
+        EnvItem{ { 650, 300, 100, 10 }, 1, GRAY }
+    };
+
+    camera = {};
+    camera.target = player.position;
+    camera.offset = (Vector2){ screenWidth/2.0f, screenHeight/2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+}
+
+void Game::UpdatePlayer(float delta)
+{
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.position.x -= PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.position.x += PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_SPACE) && player.canJump)
+    {
+        player.speed = -PLAYER_JUMP_SPD;
+        player.canJump = false;
+    }
+
+    bool hitObstacle = false;
+    const int envItemsLength = (int)envItems.size();
+    for (int i = 0; i < envItemsLength; i++)
+    {
+        const EnvItem *ei = envItems.data() + i;
+        Player *p = &player;
+        if (ei->blocking &&
+            ei->rect.x <= p->position.x &&
+            ei->rect.x + ei->rect.width >= p->position.x &&
+            ei->rect.y >= p->position.y &&
+            ei->rect.y <= p->position.y + p->speed*delta)
+        {
+            hitObstacle = true;
+            player.speed = 0.0f;
+            p->position.y = ei->rect.y;
+            break;
+        }
+    }
+
+    if (!hitObstacle)
+    {
+        player.position.y += player.speed * delta;
+        player.speed += G * delta;
+        player.canJump = false;
+    }
+    else player.canJump = true;
+}
+
+void Game::Update(float delta)
+{
+    UpdatePlayer(delta);
+
+    camera.zoom += GetMouseWheelMove() * 0.05f;
+
+    if (camera.zoom > 3.0f)
+    {
+        camera.zoom = 3.0f;
+    }
+    else if (camera.zoom < 0.25f)
+    {
+        camera.zoom = 0.25f;
+    }
+
+    if (IsKeyPressed(KEY_R))
+    {
+        camera.zoom = 1.0f;
+        player.position = (Vector2) { 400, 280 };
+    }
+
+    if (IsKeyPressed(KEY_C)) cameraOption = (cameraOption + 1) % (int)cameraUpdaters.size();
+
+    cameraUpdaters[cameraOption](&camera, &player, envItems.data(), (int)envItems.size(), delta, (float)screenWidth, (float)screenHeight);
+}
+
+void Game::Draw()
+{
+    BeginDrawing();
+
+        ClearBackground(LIGHTGRAY);
+
+        BeginMode2D(camera);
+
+            for (auto &ei : envItems)
+            {
+                DrawRectangleRec(ei.rect, ei.color);
+            }
+
+            const Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
+            DrawRectangleRec(playerRect, RED);
+
+            DrawCircleV(player.position, 5.0f, GOLD);
+
+        EndMode2D();
+
+        DrawText("Controls:", 20, 20, 10, BLACK);
+        DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
+        DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
+        DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
+        DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
+        DrawText("Current camera mode:", 20, 120, 10, BLACK);
+
+    EndDrawing();
+}
