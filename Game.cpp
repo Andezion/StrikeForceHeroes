@@ -38,24 +38,24 @@ static void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player,
     const Vector2 maxWorld{ maxX, maxY };
     const Vector2 minWorld{ minX, minY };
 
-    const Vector2 maxScreen = GetWorldToScreen2D(maxWorld, *camera);
-    const Vector2 minScreen = GetWorldToScreen2D(minWorld, *camera);
+    const auto [x, y] = GetWorldToScreen2D(maxWorld, *camera);
+    const auto [a, b] = GetWorldToScreen2D(minWorld, *camera);
 
-    if (maxScreen.x < width)
+    if (x < width)
     {
-        camera->offset.x = width - (maxScreen.x - width / 2);
+        camera->offset.x = width - (x - width / 2);
     }
-    if (maxScreen.y < height)
+    if (y < height)
     {
-        camera->offset.y = height - (maxScreen.y - height / 2);
+        camera->offset.y = height - (y - height / 2);
     }
-    if (minScreen.x > 0)
+    if (a > 0)
     {
-        camera->offset.x = width / 2 - minScreen.x;
+        camera->offset.x = width / 2 - a;
     }
-    if (minScreen.y > 0)
+    if (b > 0)
     {
-        camera->offset.y = height / 2 - minScreen.y;
+        camera->offset.y = height / 2 - b;
     }
 }
 
@@ -70,8 +70,7 @@ static void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player,
     camera->offset = (Vector2){ width / 2.0f, height / 2.0f };
     const Vector2 diff = Vector2Subtract(player->position, camera->target);
 
-    const float length = Vector2Length(diff);
-    if (length > minEffectLength)
+    if (const float length = Vector2Length(diff); length > minEffectLength)
     {
         const float speed = fmaxf(fractionSpeed*length, minSpeed);
         camera->target = Vector2Add(camera->target, Vector2Scale(diff, speed*delta/length));
