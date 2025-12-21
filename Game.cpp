@@ -217,58 +217,45 @@ void Game::UpdatePlayer(const float delta)
     const int envItemsLength = static_cast<int>(envItems.size());
 
     Player *p = &player;
-    const float nextY = p->position.y + p->speed * delta;
-    const float playerLeft = p->position.x;
-    const float playerRight = p->position.x;
-    const float playerTop = p->position.y;
-    const float playerBottom = p->position.y;
-    const float nextBottom = playerBottom + p->speed * delta;
-    const float nextTop = playerTop + p->speed * delta;
+    Rectangle playerRect = { p->position.x - 20.0f, p->position.y - 40.0f, 40.0f, 40.0f };
+    Rectangle playerNextRect = playerRect;
+    playerNextRect.y += p->speed * delta;
 
     for (int i = 0; i < envItemsLength; ++i)
     {
         const EnvItem *ei = envItems.data() + i;
-        if (!ei->blocking)
+        if (!ei->blocking) continue;
+
+        if (CheckCollisionRecs(playerNextRect, ei->rect))
         {
-            continue;
-        }
+            const float eiTop = ei->rect.y;
+            const float eiBottom = ei->rect.y + ei->rect.height;
 
-        const float eiLeft = ei->rect.x;
-        const float eiRight = ei->rect.x + ei->rect.width;
-        const float eiTop = ei->rect.y;
-        const float eiBottom = ei->rect.y + ei->rect.height;
-
-        const bool horizontallyOverlap = playerRight > eiLeft && playerLeft < eiRight;
-
-        if (p->speed > 0)
-        {
-            if (horizontallyOverlap && playerBottom <= eiTop && nextBottom >= eiTop)
+            if (p->speed > 0 && playerRect.y + playerRect.height <= eiTop)
             {
                 collided = true;
-
                 p->speed = 0.0f;
-                p->position.y = eiTop;
 
                 break;
             }
-        }
-        else if (p->speed < 0)
-        {
-            if (horizontallyOverlap && playerTop >= eiBottom && nextTop <= eiBottom)
+
+            if (p->speed < 0 && playerRect.y >= eiBottom)
             {
                 collided = true;
-
                 p->speed = 0.0f;
-                p->position.y = eiBottom;
 
                 break;
             }
+
+            collided = true;
+            p->speed = 0.0f;
+            break;
         }
     }
 
     if (!collided)
     {
-        p->position.y = nextY;
+        p->position.y += p->speed * delta;
         p->speed += G * delta;
         p->canJump = false;
     }
