@@ -243,19 +243,18 @@ void Game::Update(float delta)
 
     camera.zoom += GetMouseWheelMove() * 0.05f;
 
-    if (camera.zoom > 3.0f)
+    if (camera.zoom > 2.0f)
     {
-        camera.zoom = 3.0f;
+        camera.zoom = 2.0f;
     }
-    else if (camera.zoom < 0.25f)
+    else if (camera.zoom < 0.7f)
     {
-        camera.zoom = 0.25f;
+        camera.zoom = 0.7f;
     }
 
     if (IsKeyPressed(KEY_R))
     {
         camera.zoom = 1.0f;
-        player.position = (Vector2) { 400, 280 };
     }
 
     if (IsKeyPressed(KEY_C))
