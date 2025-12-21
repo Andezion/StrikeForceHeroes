@@ -202,8 +202,6 @@ void Game::UpdatePlayer(const float delta)
     constexpr float halfWidth = 20.0f;
     constexpr float fullHeight = 40.0f;
 
-    const auto [x, y] = player.position;
-
     if (IsKeyDown(KEY_A))
     {
         player.position.x -= PLAYER_HOR_SPD * delta;
@@ -212,7 +210,6 @@ void Game::UpdatePlayer(const float delta)
     {
         player.position.x += PLAYER_HOR_SPD * delta;
     }
-
 
     if (IsKeyPressed(KEY_W) && player.canJump)
     {
@@ -223,10 +220,15 @@ void Game::UpdatePlayer(const float delta)
     player.speed += G * delta;
     player.position.y += player.speed * delta;
 
-
-    Rectangle playerRect = { player.position.x - halfWidth, player.position.y - fullHeight, halfWidth*2.0f, fullHeight };
+    Rectangle playerRect = {
+        player.position.x - halfWidth,
+        player.position.y - fullHeight,
+        halfWidth * 2.0f,
+        fullHeight
+    };
 
     const int envItemsLength = static_cast<int>(envItems.size());
+    bool grounded = false;
 
     for (int i = 0; i < envItemsLength; ++i)
     {
@@ -238,81 +240,41 @@ void Game::UpdatePlayer(const float delta)
 
         if (CheckCollisionRecs(rect, playerRect))
         {
-            if (player.position.x > 0)
+            const float overlapLeft = (playerRect.x + playerRect.width) - rect.x;
+            const float overlapRight = (rect.x + rect.width) - playerRect.x;
+            const float overlapTop = (playerRect.y + playerRect.height) - rect.y;
+            const float overlapBottom = (rect.y + rect.height) - playerRect.y;
+
+            const float minOverlap = fminf(
+                fminf(overlapLeft, overlapRight),
+                fminf(overlapTop, overlapBottom)
+            );
+
+            if (minOverlap == overlapTop)
+            {
+                player.position.y = rect.y;
+                player.speed = 0.0f;
+
+                grounded = true;
+            }
+            else if (minOverlap == overlapBottom)
+            {
+                player.position.y = rect.y + rect.height + fullHeight;
+                player.speed = 0.0f;
+            }
+            else if (minOverlap == overlapLeft)
             {
                 player.position.x = rect.x - halfWidth;
             }
-            else if (player.position.x < 0)
+            else
             {
                 player.position.x = rect.x + rect.width + halfWidth;
             }
 
             playerRect.x = player.position.x - halfWidth;
+            playerRect.y = player.position.y - fullHeight;
         }
     }
-
-     bool grounded = false;
-     for (int i = 0; i < envItemsLength; ++i)
-     {
-         const EnvItem &envItem = envItems[i];
-         if (!envItem.blocking)
-         {
-             continue;
-         }
-
-         if (CheckCollisionRecs(envItem.rect, playerRect))
-         {
-             const float prevBottom = y;
-             const float prevTop = y - fullHeight;
-             const float envTop = envItem.rect.y;
-             const float envBottom = envItem.rect.y + envItem.rect.height;
-
-             if (prevBottom <= envTop && player.position.y >= envTop)
-             {
-                 player.position.y = envTop;
-                 player.speed = 0.0f;
-                 grounded = true;
-
-                 playerRect.y = player.position.y - fullHeight;
-             }
-             else if (prevTop >= envBottom && player.position.y - fullHeight <= envBottom)
-             {
-                 player.position.y = envBottom + fullHeight;
-                 player.speed = 0.0f;
-
-                 playerRect.y = player.position.y - fullHeight;
-             }
-             else
-             {
-                 const float overlapLeft = (playerRect.x + playerRect.width) - envItem.rect.x;
-                 const float overlapRight = (envItem.rect.x + envItem.rect.width) - playerRect.x;
-                 const float overlapTop = (playerRect.y + playerRect.height) - envItem.rect.y;
-                 const float overlapBottom = (envItem.rect.y + envItem.rect.height) - playerRect.y;
-
-                 float minOverlap = fminf(fminf(fabsf(overlapLeft), fabsf(overlapRight)), fminf(fabsf(overlapTop), fabsf(overlapBottom)));
-                 if (minOverlap == fabsf(overlapLeft))
-                 {
-                     player.position.x -= overlapLeft;
-                     playerRect.x = player.position.x - halfWidth;
-                 }
-                 else if (minOverlap == fabsf(overlapRight))
-                 {
-                     player.position.x += overlapRight;
-                     playerRect.x = player.position.x - halfWidth;
-                 }
-                 else if (minOverlap == fabsf(overlapTop))
-                 {
-                     player.position.y -= overlapTop;
-                     playerRect.y = player.position.y - fullHeight;
-                 }
-                 else
-                 {
-                     player.position.y += overlapBottom;
-                     playerRect.y = player.position.y - fullHeight;
-                 }
-             }
-         }
-     }
 
     player.canJump = grounded;
 }
