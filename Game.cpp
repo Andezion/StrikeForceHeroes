@@ -12,7 +12,7 @@ static void UpdateCameraCenter(Camera2D *camera, Player *player,
     EnvItem *envItems, int envItemsLength,
     float delta, const float width, const float height)
 {
-    camera->offset = (Vector2){ width / 2.0f, height / 2.0f };
+    camera->offset = Vector2{ width / 2.0f, height / 2.0f };
     camera->target = player->position;
 }
 
@@ -21,7 +21,7 @@ static void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player,
     float delta, const float width, const float height)
 {
     camera->target = player->position;
-    camera->offset = (Vector2) { width / 2.0f, height / 2.0f };
+    camera->offset = Vector2{ width / 2.0f, height / 2.0f };
 
     float minX = 3000, minY = 2000, maxX = -3000, maxY = -2000;
 
@@ -67,7 +67,7 @@ static void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player,
     static float minEffectLength = 10;
     static float fractionSpeed = 0.8f;
 
-    camera->offset = (Vector2){ width / 2.0f, height / 2.0f };
+    camera->offset = Vector2{ width / 2.0f, height / 2.0f };
     const Vector2 diff = Vector2Subtract(player->position, camera->target);
 
     if (const float length = Vector2Length(diff); length > minEffectLength)
@@ -85,7 +85,7 @@ static void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player,
     static int eveningOut = false;
     static float evenOutTarget;
 
-    camera->offset = (Vector2){ width/2.0f, height/2.0f };
+    camera->offset = Vector2{ width/2.0f, height/2.0f };
     camera->target.x = player->position.x;
 
     if (eveningOut)
@@ -175,7 +175,7 @@ Game::~Game() = default;
 void Game::InitScene()
 {
     player = {};
-    player.position = (Vector2){ 20, 20 };
+    player.position = Vector2{ 200, 200 };
     player.speed = 0;
     player.canJump = false;
 
@@ -192,77 +192,124 @@ void Game::InitScene()
 
     camera = {};
     camera.target = player.position;
-    camera.offset = (Vector2){ static_cast<float>(screenWidth) / 2.0f, static_cast<float>(screenHeight) / 2.0f };
+    camera.offset = Vector2{ static_cast<float>(screenWidth) / 2.0f, static_cast<float>(screenHeight) / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 }
 
 void Game::UpdatePlayer(const float delta)
 {
-    if (IsKeyDown(KEY_A))
-    {
-        player.position.x -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_D))
-    {
-        player.position.x += PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_W) && player.canJump)
+    const float halfWidth = 20.0f;
+    const float fullHeight = 40.0f;
+
+    const Vector2 prevPos = player.position;
+
+    float dx = 0.0f;
+    if (IsKeyDown(KEY_A)) dx -= PLAYER_HOR_SPD * delta;
+    if (IsKeyDown(KEY_D)) dx += PLAYER_HOR_SPD * delta;
+    player.position.x += dx;
+
+    if (IsKeyPressed(KEY_W) && player.canJump)
     {
         player.speed = -PLAYER_JUMP_SPD;
         player.canJump = false;
     }
 
-    bool collided = false;
+    player.speed += G * delta;
+    player.position.y += player.speed * delta;
+
+
+    Rectangle playerRect = { player.position.x - halfWidth, player.position.y - fullHeight, halfWidth*2.0f, fullHeight };
+
     const int envItemsLength = static_cast<int>(envItems.size());
 
-    Player *p = &player;
-    Rectangle playerRect = { p->position.x - 20.0f, p->position.y - 40.0f, 40.0f, 40.0f };
-    Rectangle playerNextRect = playerRect;
-    playerNextRect.y += p->speed * delta;
-
-    for (int i = 0; i < envItemsLength; ++i)
+    if (dx != 0.0f)
     {
-        const EnvItem *ei = envItems.data() + i;
-        if (!ei->blocking) continue;
-
-        if (CheckCollisionRecs(playerNextRect, ei->rect))
+        for (int i = 0; i < envItemsLength; ++i)
         {
-            const float eiTop = ei->rect.y;
-            const float eiBottom = ei->rect.y + ei->rect.height;
+            const EnvItem &envItem = envItems[i];
+            if (!envItem.blocking) continue;
 
-            if (p->speed > 0 && playerRect.y + playerRect.height <= eiTop)
+            if (CheckCollisionRecs(envItem.rect, playerRect))
             {
-                collided = true;
-                p->speed = 0.0f;
+                if (dx > 0)
+                {
+                    player.position.x = envItem.rect.x - halfWidth;
+                }
+                else if (dx < 0)
+                {
+                    player.position.x = envItem.rect.x + envItem.rect.width + halfWidth;
+                }
 
-                break;
+                playerRect.x = player.position.x - halfWidth;
             }
-
-            if (p->speed < 0 && playerRect.y >= eiBottom)
-            {
-                collided = true;
-                p->speed = 0.0f;
-
-                break;
-            }
-
-            collided = true;
-            p->speed = 0.0f;
-            break;
         }
     }
 
-    if (!collided)
+    bool grounded = false;
+    for (int i = 0; i < envItemsLength; ++i)
     {
-        p->position.y += p->speed * delta;
-        p->speed += G * delta;
-        p->canJump = false;
+        const EnvItem &envItem = envItems[i];
+        if (!envItem.blocking)
+        {
+            continue;
+        }
+
+        if (CheckCollisionRecs(envItem.rect, playerRect))
+        {
+            const float prevBottom = prevPos.y;
+            const float prevTop = prevPos.y - fullHeight;
+            const float envTop = envItem.rect.y;
+            const float envBottom = envItem.rect.y + envItem.rect.height;
+
+            if (prevBottom <= envTop && player.position.y >= envTop)
+            {
+                player.position.y = envTop;
+                player.speed = 0.0f;
+                grounded = true;
+
+                playerRect.y = player.position.y - fullHeight;
+            }
+            else if (prevTop >= envBottom && player.position.y - fullHeight <= envBottom)
+            {
+                player.position.y = envBottom + fullHeight;
+                player.speed = 0.0f;
+
+                playerRect.y = player.position.y - fullHeight;
+            }
+            else
+            {
+                const float overlapLeft = (playerRect.x + playerRect.width) - envItem.rect.x;
+                const float overlapRight = (envItem.rect.x + envItem.rect.width) - playerRect.x;
+                const float overlapTop = (playerRect.y + playerRect.height) - envItem.rect.y;
+                const float overlapBottom = (envItem.rect.y + envItem.rect.height) - playerRect.y;
+
+                float minOverlap = fminf(fminf(fabsf(overlapLeft), fabsf(overlapRight)), fminf(fabsf(overlapTop), fabsf(overlapBottom)));
+                if (minOverlap == fabsf(overlapLeft))
+                {
+                    player.position.x -= overlapLeft;
+                    playerRect.x = player.position.x - halfWidth;
+                }
+                else if (minOverlap == fabsf(overlapRight))
+                {
+                    player.position.x += overlapRight;
+                    playerRect.x = player.position.x - halfWidth;
+                }
+                else if (minOverlap == fabsf(overlapTop))
+                {
+                    player.position.y -= overlapTop;
+                    playerRect.y = player.position.y - fullHeight;
+                }
+                else
+                {
+                    player.position.y += overlapBottom;
+                    playerRect.y = player.position.y - fullHeight;
+                }
+            }
+        }
     }
-    else
-    {
-        p->canJump = true;
-    }
+
+    player.canJump = grounded;
 }
 
 void Game::Update(const float delta)
