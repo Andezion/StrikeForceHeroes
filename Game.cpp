@@ -23,7 +23,7 @@ static void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player,
     camera->target = player->position;
     camera->offset = (Vector2) { width / 2.0f, height / 2.0f };
 
-    float minX = 1000, minY = 1000, maxX = -1000, maxY = -1000;
+    float minX = 3000, minY = 2000, maxX = -3000, maxY = -2000;
 
     for (int i = 0; i < envItemsLength; i++)
     {
@@ -175,13 +175,16 @@ Game::~Game() = default;
 void Game::InitScene()
 {
     player = {};
-    player.position = (Vector2){ 400, 280 };
+    player.position = (Vector2){ 20, 20 };
     player.speed = 0;
     player.canJump = false;
 
     envItems = {
-        EnvItem{ { 0, 0, 1000, 400 }, 0, LIGHTGRAY },
-        EnvItem{ { 0, 400, 1000, 200 }, 1, GRAY },
+        EnvItem{ { 0, 0, 2000, 10 }, 1, GRAY },
+        EnvItem{ { 0, 0, 10, 500 }, 1, GRAY },
+        EnvItem{ { 1990, 0, 10, 500 }, 1, GRAY },
+        EnvItem{ { 0, 490, 2000, 10 }, 1, GRAY },
+
         EnvItem{ { 300, 200, 400, 10 }, 1, GRAY },
         EnvItem{ { 250, 300, 100, 10 }, 1, GRAY },
         EnvItem{ { 650, 300, 100, 10 }, 1, GRAY }
@@ -210,31 +213,65 @@ void Game::UpdatePlayer(const float delta)
         player.canJump = false;
     }
 
-    bool hitObstacle = false;
+    bool collided = false;
     const int envItemsLength = static_cast<int>(envItems.size());
-    for (int i = 0; i < envItemsLength; i++)
+
+    Player *p = &player;
+    const float nextY = p->position.y + p->speed * delta;
+    const float playerLeft = p->position.x;
+    const float playerRight = p->position.x;
+    const float playerTop = p->position.y;
+    const float playerBottom = p->position.y;
+    const float nextBottom = playerBottom + p->speed * delta;
+    const float nextTop = playerTop + p->speed * delta;
+
+    for (int i = 0; i < envItemsLength; ++i)
     {
         const EnvItem *ei = envItems.data() + i;
-        if (Player *p = &player; ei->blocking &&
-            ei->rect.x <= p->position.x &&
-            ei->rect.x + ei->rect.width >= p->position.x &&
-            ei->rect.y >= p->position.y &&
-            ei->rect.y <= p->position.y + p->speed*delta)
+        if (!ei->blocking)
         {
-            hitObstacle = true;
-            player.speed = 0.0f;
-            p->position.y = ei->rect.y;
-            break;
+            continue;
+        }
+
+        const float eiLeft = ei->rect.x;
+        const float eiRight = ei->rect.x + ei->rect.width;
+        const float eiTop = ei->rect.y;
+        const float eiBottom = ei->rect.y + ei->rect.height;
+
+        const bool horizontallyOverlap = (playerRight > eiLeft) && (playerLeft < eiRight);
+
+        if (p->speed > 0)
+        {
+            if (horizontallyOverlap && playerBottom <= eiTop && nextBottom >= eiTop)
+            {
+                collided = true;
+                p->speed = 0.0f;
+                p->position.y = eiTop;
+                break;
+            }
+        }
+        else if (p->speed < 0)
+        {
+            if (horizontallyOverlap && playerTop >= eiBottom && nextTop <= eiBottom)
+            {
+                collided = true;
+                p->speed = 0.0f;
+                p->position.y = eiBottom;
+                break;
+            }
         }
     }
 
-    if (!hitObstacle)
+    if (!collided)
     {
-        player.position.y += player.speed * delta;
-        player.speed += G * delta;
-        player.canJump = false;
+        p->position.y = nextY;
+        p->speed += G * delta;
+        p->canJump = false;
     }
-    else player.canJump = true;
+    else
+    {
+        p->canJump = true;
+    }
 }
 
 void Game::Update(float delta)
