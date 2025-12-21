@@ -238,15 +238,17 @@ void Game::UpdatePlayer(const float delta)
         const float eiTop = ei->rect.y;
         const float eiBottom = ei->rect.y + ei->rect.height;
 
-        const bool horizontallyOverlap = (playerRight > eiLeft) && (playerLeft < eiRight);
+        const bool horizontallyOverlap = playerRight > eiLeft && playerLeft < eiRight;
 
         if (p->speed > 0)
         {
             if (horizontallyOverlap && playerBottom <= eiTop && nextBottom >= eiTop)
             {
                 collided = true;
+
                 p->speed = 0.0f;
                 p->position.y = eiTop;
+
                 break;
             }
         }
@@ -255,8 +257,10 @@ void Game::UpdatePlayer(const float delta)
             if (horizontallyOverlap && playerTop >= eiBottom && nextTop <= eiBottom)
             {
                 collided = true;
+
                 p->speed = 0.0f;
                 p->position.y = eiBottom;
+
                 break;
             }
         }
@@ -274,7 +278,7 @@ void Game::UpdatePlayer(const float delta)
     }
 }
 
-void Game::Update(float delta)
+void Game::Update(const float delta)
 {
     UpdatePlayer(delta);
 
