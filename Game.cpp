@@ -196,15 +196,15 @@ void Game::InitScene()
 
 void Game::UpdatePlayer(const float delta)
 {
-    if (IsKeyDown(KEY_LEFT))
+    if (IsKeyDown(KEY_A))
     {
         player.position.x -= PLAYER_HOR_SPD * delta;
     }
-    if (IsKeyDown(KEY_RIGHT))
+    if (IsKeyDown(KEY_D))
     {
         player.position.x += PLAYER_HOR_SPD * delta;
     }
-    if (IsKeyDown(KEY_SPACE) && player.canJump)
+    if (IsKeyDown(KEY_W) && player.canJump)
     {
         player.speed = -PLAYER_JUMP_SPD;
         player.canJump = false;

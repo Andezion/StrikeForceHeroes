@@ -3,8 +3,8 @@
 
 int main()
 {
-    constexpr int screenWidth = 800;
-    constexpr int screenHeight = 450;
+    constexpr int screenWidth = 1800;
+    constexpr int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "StrikeForceHeroes");
     SetTargetFPS(60);
