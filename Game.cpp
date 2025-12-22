@@ -175,19 +175,24 @@ Game::~Game() = default;
 void Game::InitScene()
 {
     player = {};
-    player.position = Vector2{ 200, 200 };
+    player.position = Vector2{ 100, 500 };
     player.speed = 0;
     player.canJump = false;
 
     envItems = {
-        EnvItem{ { 0, 0, 2000, 10 }, 1, GRAY },
-        EnvItem{ { 0, 0, 10, 500 }, 1, GRAY },
-        EnvItem{ { 1990, 0, 10, 500 }, 1, GRAY },
-        EnvItem{ { 0, 490, 2000, 10 }, 1, GRAY },
+        EnvItem{ { 0,    0,   2000,   10 },     1, GRAY },
+        EnvItem{ { 0,    0,   10,     700 },    1, GRAY },
+        EnvItem{ { 1990, 0,   10,     700 },    1, GRAY },
+        EnvItem{ { 0,    690, 2000,   10 },     1, GRAY },
 
-        EnvItem{ { 300, 200, 400, 10 }, 1, GRAY },
-        EnvItem{ { 250, 300, 100, 10 }, 1, GRAY },
-        EnvItem{ { 650, 300, 100, 10 }, 1, GRAY }
+        EnvItem{ { 200,  600, 200, 10 },  1, GRAY },
+        EnvItem{ { 400,  500, 200, 10 },  1, GRAY },
+        EnvItem{ { 600,  400, 200, 10 },  1, GRAY },
+        EnvItem{ { 800,  300, 200, 10 },  1, GRAY },
+        EnvItem{ { 1000, 200, 200, 10 },  1, GRAY },
+        EnvItem{ { 1200, 100, 200, 10 },  1, GRAY },
+        EnvItem{ { 1400, 200, 200, 10 },  1, GRAY },
+        EnvItem{ { 1600, 300, 200, 10 },  1, GRAY },
     };
 
     camera = {};
