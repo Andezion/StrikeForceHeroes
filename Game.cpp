@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-#define G 500
+#define G 450
 #define PLAYER_JUMP_SPD 450.0f
 #define PLAYER_HOR_SPD 300.0f
 
@@ -188,14 +188,9 @@ void Game::InitScene()
         EnvItem{ {0, 300, 400, 50} ,1, GRAY},
         EnvItem{ {350, 500, 400, 50} ,1, GRAY},
 
-        // EnvItem{ { 200,  600, 200, 10 },  1, GRAY },
-        // EnvItem{ { 400,  500, 200, 10 },  1, GRAY },
-        // EnvItem{ { 600,  400, 200, 10 },  1, GRAY },
-        // EnvItem{ { 800,  300, 200, 10 },  1, GRAY },
-        // EnvItem{ { 1000, 200, 200, 10 },  1, GRAY },
-        // EnvItem{ { 1200, 100, 200, 10 },  1, GRAY },
-        // EnvItem{ { 1400, 200, 200, 10 },  1, GRAY },
-        // EnvItem{ { 1600, 300, 200, 10 },  1, GRAY },
+        EnvItem{ { 500, 620, 200, 70 }, 1, GRAY},
+
+
     };
 
     camera = {};
