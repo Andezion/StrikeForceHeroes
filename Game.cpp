@@ -4,9 +4,9 @@
 
 #include <cmath>
 
-#define G 400
-#define PLAYER_JUMP_SPD 350.0f
-#define PLAYER_HOR_SPD 200.0f
+#define G 500
+#define PLAYER_JUMP_SPD 450.0f
+#define PLAYER_HOR_SPD 300.0f
 
 static void UpdateCameraCenter(Camera2D *camera, Player *player,
     EnvItem *envItems, int envItemsLength,
@@ -185,14 +185,17 @@ void Game::InitScene()
         EnvItem{ { 1990, 0,   10,     700 },    1, GRAY },
         EnvItem{ { 0,    690, 2000,   10 },     1, GRAY },
 
-        EnvItem{ { 200,  600, 200, 10 },  1, GRAY },
-        EnvItem{ { 400,  500, 200, 10 },  1, GRAY },
-        EnvItem{ { 600,  400, 200, 10 },  1, GRAY },
-        EnvItem{ { 800,  300, 200, 10 },  1, GRAY },
-        EnvItem{ { 1000, 200, 200, 10 },  1, GRAY },
-        EnvItem{ { 1200, 100, 200, 10 },  1, GRAY },
-        EnvItem{ { 1400, 200, 200, 10 },  1, GRAY },
-        EnvItem{ { 1600, 300, 200, 10 },  1, GRAY },
+        EnvItem{ {0, 300, 400, 50} ,1, GRAY},
+        EnvItem{ {350, 500, 400, 50} ,1, GRAY},
+
+        // EnvItem{ { 200,  600, 200, 10 },  1, GRAY },
+        // EnvItem{ { 400,  500, 200, 10 },  1, GRAY },
+        // EnvItem{ { 600,  400, 200, 10 },  1, GRAY },
+        // EnvItem{ { 800,  300, 200, 10 },  1, GRAY },
+        // EnvItem{ { 1000, 200, 200, 10 },  1, GRAY },
+        // EnvItem{ { 1200, 100, 200, 10 },  1, GRAY },
+        // EnvItem{ { 1400, 200, 200, 10 },  1, GRAY },
+        // EnvItem{ { 1600, 300, 200, 10 },  1, GRAY },
     };
 
     camera = {};
