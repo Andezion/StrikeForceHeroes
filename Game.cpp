@@ -304,12 +304,7 @@ void Game::Update(const float delta)
         camera.zoom = 1.0f;
     }
 
-    if (IsKeyPressed(KEY_C))
-    {
-        cameraOption = (cameraOption + 1) % static_cast<int>(cameraUpdaters.size());
-    }
-
-    cameraUpdaters[cameraOption](&camera, &player, envItems.data(), static_cast<int>(envItems.size()),
+    cameraUpdaters[2 % static_cast<int>(cameraUpdaters.size())](&camera, &player, envItems.data(), static_cast<int>(envItems.size()),
         delta, static_cast<float>(screenWidth), static_cast<float>(screenHeight));
 }
 
