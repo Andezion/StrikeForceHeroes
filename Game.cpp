@@ -246,8 +246,6 @@ void Game::Draw()
             const Rectangle playerRect = { player.position.x - 10, player.position.y - 60, 20.0f, 60.0f };
             DrawRectangleRec(playerRect, RED);
 
-            DrawCircleV(player.position, 5.0f, GOLD);
-
         EndMode2D();
 
         DrawText("Controls:", 20, 20, 10, BLACK);
