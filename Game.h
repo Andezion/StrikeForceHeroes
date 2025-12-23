@@ -9,11 +9,7 @@ struct EnvItem {
     Color color;
 };
 
-struct Player {
-    Vector2 position;
-    float speed;
-    bool canJump;
-};
+#include "Player.h"
 
 class Game {
 public:
