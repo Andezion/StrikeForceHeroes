@@ -174,7 +174,7 @@ Game::~Game() = default;
 
 void Game::InitScene()
 {
-    player = {};
+    player = Player();
     player.position = Vector2{ 100, 500 };
     player.speed = 0;
     player.canJump = false;
@@ -206,91 +206,9 @@ void Game::InitScene()
     camera.zoom = 1.0f;
 }
 
-void Game::UpdatePlayer(const float delta)
-{
-    constexpr float halfWidth = 10.0f;
-    constexpr float fullHeight = 60.0f;
-
-    if (IsKeyDown(KEY_A))
-    {
-        player.position.x -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_D))
-    {
-        player.position.x += PLAYER_HOR_SPD * delta;
-    }
-
-    if (IsKeyPressed(KEY_W) && player.canJump)
-    {
-        player.speed = -PLAYER_JUMP_SPD;
-        player.canJump = false;
-    }
-
-    player.speed += G * delta;
-    player.position.y += player.speed * delta;
-
-    Rectangle playerRect = {
-        player.position.x - halfWidth,
-        player.position.y - fullHeight,
-        halfWidth * 2.0f,
-        fullHeight
-    };
-
-    const int envItemsLength = static_cast<int>(envItems.size());
-    bool grounded = false;
-
-    for (int i = 0; i < envItemsLength; ++i)
-    {
-        const auto &[rect, blocking, color] = envItems[i];
-        if (!blocking)
-        {
-            continue;
-        }
-
-        if (CheckCollisionRecs(rect, playerRect))
-        {
-            const float overlapLeft = (playerRect.x + playerRect.width) - rect.x;
-            const float overlapRight = (rect.x + rect.width) - playerRect.x;
-            const float overlapTop = (playerRect.y + playerRect.height) - rect.y;
-            const float overlapBottom = (rect.y + rect.height) - playerRect.y;
-
-            const float minOverlap = fminf(
-                fminf(overlapLeft, overlapRight),
-                fminf(overlapTop, overlapBottom)
-            );
-
-            if (minOverlap == overlapTop)
-            {
-                player.position.y = rect.y;
-                player.speed = 0.0f;
-
-                grounded = true;
-            }
-            else if (minOverlap == overlapBottom)
-            {
-                player.position.y = rect.y + rect.height + fullHeight;
-                player.speed = 0.0f;
-            }
-            else if (minOverlap == overlapLeft)
-            {
-                player.position.x = rect.x - halfWidth;
-            }
-            else
-            {
-                player.position.x = rect.x + rect.width + halfWidth;
-            }
-
-            playerRect.x = player.position.x - halfWidth;
-            playerRect.y = player.position.y - fullHeight;
-        }
-    }
-
-    player.canJump = grounded;
-}
-
 void Game::Update(const float delta)
 {
-    UpdatePlayer(delta);
+    player.Update(delta, envItems);
 
     camera.zoom += GetMouseWheelMove() * 0.05f;
 
