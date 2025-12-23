@@ -45,16 +45,18 @@ void Player::Update(float delta, const std::vector<EnvItem>& envItems)
 
 	bool grounded = false;
 
-	for (const auto &[rect, blocking, color] : envItems)
+	for (const auto &ei : envItems)
 	{
-		if (!blocking) continue;
+		if (!ei.blocking) continue;
 
-		if (const Rectangle &rectangle = rectangle; CheckCollisionRecs(rectangle, playerRect))
+		const Rectangle &rect = ei.rect;
+
+		if (CheckCollisionRecs(rect, playerRect))
 		{
-			const float overlapLeft = (playerRect.x + playerRect.width) - rectangle.x;
-			const float overlapRight = (rectangle.x + rectangle.width) - playerRect.x;
-			const float overlapTop = (playerRect.y + playerRect.height) - rectangle.y;
-			const float overlapBottom = (rectangle.y + rectangle.height) - playerRect.y;
+			const float overlapLeft = (playerRect.x + playerRect.width) - rect.x;
+			const float overlapRight = (rect.x + rect.width) - playerRect.x;
+			const float overlapTop = (playerRect.y + playerRect.height) - rect.y;
+			const float overlapBottom = (rect.y + rect.height) - playerRect.y;
 
 			const float minOverlap = fminf(
 				fminf(overlapLeft, overlapRight),
@@ -63,23 +65,23 @@ void Player::Update(float delta, const std::vector<EnvItem>& envItems)
 
 			if (minOverlap == overlapTop)
 			{
-				position.y = rectangle.y;
+				position.y = rect.y;
 				speed = 0.0f;
 
 				grounded = true;
 			}
 			else if (minOverlap == overlapBottom)
 			{
-				position.y = rectangle.y + rectangle.height + fullHeight;
+				position.y = rect.y + rect.height + fullHeight;
 				speed = 0.0f;
 			}
 			else if (minOverlap == overlapLeft)
 			{
-				position.x = rectangle.x - halfWidth;
+				position.x = rect.x - halfWidth;
 			}
 			else
 			{
-				position.x = rectangle.x + rectangle.width + halfWidth;
+				position.x = rect.x + rect.width + halfWidth;
 			}
 
 			playerRect.x = position.x - halfWidth;
