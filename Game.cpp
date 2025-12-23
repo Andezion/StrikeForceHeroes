@@ -208,8 +208,8 @@ void Game::InitScene()
 
 void Game::UpdatePlayer(const float delta)
 {
-    constexpr float halfWidth = 20.0f;
-    constexpr float fullHeight = 40.0f;
+    constexpr float halfWidth = 10.0f;
+    constexpr float fullHeight = 60.0f;
 
     if (IsKeyDown(KEY_A))
     {
@@ -325,7 +325,7 @@ void Game::Draw()
                 DrawRectangleRec(rect, color);
             }
 
-            const Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
+            const Rectangle playerRect = { player.position.x - 10, player.position.y - 60, 20.0f, 60.0f };
             DrawRectangleRec(playerRect, RED);
 
             DrawCircleV(player.position, 5.0f, GOLD);
