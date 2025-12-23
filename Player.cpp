@@ -47,16 +47,17 @@ void Player::Update(float delta, const std::vector<EnvItem>& envItems)
 
 	for (const auto &ei : envItems)
 	{
-		if (!ei.blocking) continue;
-
-		const Rectangle &rect = ei.rect;
-
-		if (CheckCollisionRecs(rect, playerRect))
+		if (!ei.blocking)
 		{
-			const float overlapLeft = (playerRect.x + playerRect.width) - rect.x;
-			const float overlapRight = (rect.x + rect.width) - playerRect.x;
-			const float overlapTop = (playerRect.y + playerRect.height) - rect.y;
-			const float overlapBottom = (rect.y + rect.height) - playerRect.y;
+			continue;
+		}
+
+		if (const Rectangle &rect = ei.rect; CheckCollisionRecs(rect, playerRect))
+		{
+			const float overlapLeft = playerRect.x + playerRect.width - rect.x;
+			const float overlapRight = rect.x + rect.width - playerRect.x;
+			const float overlapTop = playerRect.y + playerRect.height - rect.y;
+			const float overlapBottom = rect.y + rect.height - playerRect.y;
 
 			const float minOverlap = fminf(
 				fminf(overlapLeft, overlapRight),
