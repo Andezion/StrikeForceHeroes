@@ -189,8 +189,12 @@ void Game::InitScene()
         EnvItem{ { 350, 500, 400, 50 } ,1, GRAY },
         EnvItem{ { 600, 130, 250, 50 } ,1, GRAY },
 
-        EnvItem{ { 500, 640, 200, 50 }, 1, GRAY},
-        EnvItem{ { 1200, 640, 200, 50 }, 1, GRAY },
+        EnvItem{ { 1150, 500, 400, 50 } ,1, GRAY },
+        EnvItem{ { 1600, 300, 400, 50 } ,1, GRAY },
+        EnvItem{ { 1050, 160, 300, 50 } ,1, GRAY },
+
+        EnvItem{ { 500,  640, 200, 50 }, 1,  GRAY },
+        EnvItem{ { 1200, 640, 200, 50 }, 1,  GRAY },
 
         EnvItem{ { 850, 10, 200, 350 }, 1, GRAY},
     };
