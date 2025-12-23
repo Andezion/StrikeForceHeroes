@@ -180,17 +180,18 @@ void Game::InitScene()
     player.canJump = false;
 
     envItems = {
-        EnvItem{ { 0,    0,   2000,   10 },     1, GRAY },
-        EnvItem{ { 0,    0,   10,     700 },    1, GRAY },
-        EnvItem{ { 1990, 0,   10,     700 },    1, GRAY },
-        EnvItem{ { 0,    690, 2000,   10 },     1, GRAY },
+        EnvItem{ { 0,    0,   2000,   10  },     1, GRAY },
+        EnvItem{ { 0,    0,   10,     700 },     1, GRAY },
+        EnvItem{ { 1990, 0,   10,     700 },     1, GRAY },
+        EnvItem{ { 0,    690, 2000,   10  },     1, GRAY },
 
-        EnvItem{ {0, 300, 400, 50} ,1, GRAY},
-        EnvItem{ {350, 500, 400, 50} ,1, GRAY},
+        EnvItem{ { 0,   300, 400, 50 } ,1, GRAY },
+        EnvItem{ { 350, 500, 400, 50 } ,1, GRAY },
+        EnvItem{ { 600, 130, 250, 50 } ,1, GRAY },
 
         EnvItem{ { 500, 620, 200, 70 }, 1, GRAY},
 
-
+        EnvItem{ { 850, 10, 200, 350 }, 1, GRAY},
     };
 
     camera = {};
