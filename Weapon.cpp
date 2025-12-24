@@ -25,5 +25,5 @@ void Weapon::Draw() const
 
     DrawRectanglePro(rec, origin, rotationDegrees, color);
 
-    DrawCircleV(anchor, thickness * 0.6f, DARKGRAY);
+    DrawCircleV(anchor, thickness * 0.6f, BLACK);
 }
