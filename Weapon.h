@@ -4,7 +4,7 @@
 class Weapon
 {
 public:
-    explicit Weapon(float length = 80.0f, float thickness = 6.0f, Color color = BLACK);
+    explicit Weapon(float length = 50.0f, float thickness = 6.0f, Color color = BLACK);
 
     void Update(const Vector2 &anchorPos, const Vector2 &targetPos);
     void Draw() const;
