@@ -11,7 +11,8 @@ struct EnvItem {
 
 #include "Player.h"
 
-class Game {
+class Game
+{
 public:
     Game(int screenWidth, int screenHeight);
     ~Game();
