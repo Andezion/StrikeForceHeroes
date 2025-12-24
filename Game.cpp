@@ -244,7 +244,15 @@ void Game::Draw()
             }
 
             const Rectangle playerRect = { player.position.x - 10, player.position.y - 60, 20.0f, 60.0f };
+
+            const Vector2 mouseScreen = GetMousePosition();
+            const Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
+            const Vector2 weaponAnchor = { player.position.x, player.position.y - 35.0f };
+
+            player.weapon.Update(weaponAnchor, mouseWorld);
+
             DrawRectangleRec(playerRect, RED);
+            player.weapon.Draw();
 
         EndMode2D();
 
