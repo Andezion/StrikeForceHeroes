@@ -20,7 +20,7 @@ void Weapon::Update(const Vector2 &anchorPos, const Vector2 &targetPos)
 
 void Weapon::Draw() const
 {
-    const Rectangle rec = { anchor.x, anchor.y - thickness * 0.5f, length, thickness };
+    const Rectangle rec = { anchor.x, anchor.y - thickness * 0.5f + 3, length, thickness };
     const Vector2 origin = { 0.0f, thickness * 0.5f };
 
     DrawRectanglePro(rec, origin, rotationDegrees, color);
