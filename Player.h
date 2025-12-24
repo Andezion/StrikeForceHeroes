@@ -1,19 +1,22 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
+#include "Weapon.h"
 
 struct EnvItem; 
 
 class Player
 {
 public:
-	Player();
+    Player();
 
-	Vector2 position;
-	float speed;
-	bool canJump;
+    Vector2 position;
+    float speed;
+    bool canJump;
 
-	void Update(float delta, const std::vector<EnvItem>& envItems);
+    Weapon weapon;
+
+    void Update(float delta, const std::vector<EnvItem>& envItems);
 };
 
 
