@@ -7,7 +7,10 @@ set(RAYLIB_PATH "C:/raylib/raylib")
 
 add_subdirectory(${RAYLIB_PATH} ${CMAKE_BINARY_DIR}/raylib_build)
 
-add_executable(War main.cpp Game.cpp Game.h Player.cpp Player.h)
+add_executable(War main.cpp
+        Game.cpp Game.h
+        Player.cpp Player.h
+        Weapon.cpp Weapon.h)
 
 target_link_libraries(War raylib)
 
