@@ -8,7 +8,7 @@ int main()
     constexpr int screenWidth = 1800;
     constexpr int screenHeight = 900;
 
-    Vector2 trailPositions[MAX_TRAIL_LENGTH] = { 0 };
+    Vector2 trailPositions[MAX_TRAIL_LENGTH] = {};
 
     InitWindow(screenWidth, screenHeight, "StrikeForceHeroes");
     SetTargetFPS(60);
@@ -22,7 +22,7 @@ int main()
         game.Update(deltaTime);
         game.Draw();
 
-        Vector2 mousePosition = GetMousePosition();
+        const Vector2 mousePosition = GetMousePosition();
 
         for (int i = MAX_TRAIL_LENGTH - 1; i > 0; i--)
         {
@@ -33,14 +33,12 @@ int main()
 
         for (int i = 0; i < MAX_TRAIL_LENGTH; i++)
         {
-            if ((trailPositions[i].x != 0.0f) || (trailPositions[i].y != 0.0f))
+            if (trailPositions[i].x != 0.0f || trailPositions[i].y != 0.0f)
             {
-                float ratio = static_cast<float>((MAX_TRAIL_LENGTH - i))/MAX_TRAIL_LENGTH;
+                const float ratio = static_cast<float>(MAX_TRAIL_LENGTH - i) / MAX_TRAIL_LENGTH;
 
-
-                Color trailColor = Fade(SKYBLUE, ratio*0.5f + 0.5f);
-
-                float trailRadius = 15.0f*ratio;
+                const Color trailColor = Fade(SKYBLUE, ratio * 0.5f + 0.5f);
+                const float trailRadius = 15.0f * ratio;
 
                 DrawCircleV(trailPositions[i], trailRadius, trailColor);
             }
