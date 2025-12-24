@@ -3,10 +3,8 @@
 
 #include <cmath>
 
-Weapon::Weapon(const float length, const float thickness, const Color color)
-    : anchor{0.0f, 0.0f}, length(length), thickness(thickness), rotationDegrees(0.0f), color(color)
-{
-}
+Weapon::Weapon(const float length, const float thickness)
+    : anchor{0.0f, 0.0f}, length(length), thickness(thickness), rotationDegrees(0.0f) {}
 
 void Weapon::Update(const Vector2 &anchorPos, const Vector2 &targetPos)
 {
@@ -23,7 +21,7 @@ void Weapon::Draw() const
     const Rectangle rec = { anchor.x, anchor.y - thickness * 0.5f + 3, length, thickness };
     const Vector2 origin = { 0.0f, thickness * 0.5f };
 
-    DrawRectanglePro(rec, origin, rotationDegrees, color);
+    DrawRectanglePro(rec, origin, rotationDegrees, BLACK);
 
     DrawCircleV(anchor, thickness * 0.6f, BLACK);
 }
