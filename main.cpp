@@ -1,8 +1,6 @@
 #include "raylib.h"
 #include "Game.h"
 
-#define MAX_TRAIL_LENGTH 30
-
 int main()
 {
     constexpr int screenWidth = 1800;
