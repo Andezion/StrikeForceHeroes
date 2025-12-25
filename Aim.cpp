@@ -47,8 +47,8 @@ void Aim::Draw() const
     DrawCircleLines(static_cast<int>(roundf(cursorScreen.x)),
         static_cast<int>(roundf(cursorScreen.y)), radius, color);
 
-    DrawCircleLines(static_cast<int>(roundf(cursorScreen.x)),
-        static_cast<int>(roundf(cursorScreen.y)), innerRadius, color);
+    // DrawCircleLines(static_cast<int>(roundf(cursorScreen.x)),
+    //     static_cast<int>(roundf(cursorScreen.y)), innerRadius, color);
 
     const float gap = innerRadius + 6.0f;
     const float lineLen = radius + 8.0f;
