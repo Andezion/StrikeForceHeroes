@@ -24,11 +24,22 @@ bool Bullet::Update(const float delta, const std::vector<EnvItem> &envItems, std
         return false;
     }
 
+    prevPos = pos;
     pos = Vector2Add(pos, Vector2Scale(vel, delta));
 
+    const float spacing = 6.0f;
+    const Vector2 seg = Vector2Subtract(pos, prevPos);
+    const float segLen = Vector2Length(seg);
+    if (segLen > 0.0001f)
     {
-        const Vector2 pVel = Vector2Scale(vel, -0.02f);
-        outParticles.emplace_back(pos, pVel, RandomFloat(0.12f, 0.25f), RandomFloat(0.6f, 1.2f), WHITE);
+        const int steps = static_cast<int>(ceilf(segLen / spacing));
+        for (int i = 0; i < steps; ++i)
+        {
+            const float t = (steps == 0) ? 0.0f : (static_cast<float>(i) / static_cast<float>(steps));
+            const Vector2 p = { prevPos.x + seg.x * t, prevPos.y + seg.y * t };
+            const Vector2 pVel = Vector2Scale(vel, -0.02f);
+            outParticles.emplace_back(p, pVel, RandomFloat(0.18f, 0.45f), RandomFloat(0.9f, 1.8f), WHITE);
+        }
     }
 
     for (const auto &[rect, blocking, color] : envItems)
