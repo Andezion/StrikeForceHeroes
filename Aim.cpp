@@ -69,3 +69,8 @@ void Aim::Draw() const
         { cursorScreen.x + lineLen, cursorScreen.y },
         color);
 }
+
+float Aim::GetRadius() const
+{
+    return radius;
+}
