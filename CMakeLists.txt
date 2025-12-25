@@ -11,7 +11,8 @@ add_executable(War main.cpp
         Game.cpp Game.h
         Player.cpp Player.h
         Weapon.cpp Weapon.h
-        Aim.cpp Aim.h)
+        Aim.cpp Aim.h
+        Bullet.cpp Bullet.h)
 
 target_link_libraries(War raylib)
 
