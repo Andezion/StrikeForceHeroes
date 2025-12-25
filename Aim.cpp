@@ -74,3 +74,8 @@ float Aim::GetRadius() const
 {
     return radius;
 }
+
+void Aim::SetColor(const Color c)
+{
+    color = c;
+}
