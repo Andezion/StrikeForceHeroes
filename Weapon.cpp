@@ -1,6 +1,8 @@
 #include "Weapon.h"
 #include "raylib.h"
-#include "Game.h" 
+#include "Game.h"
+#include "Particle.h"
+
 #include <cmath>
 
 Weapon::Weapon(const float length, const float thickness, const float bulletSpeed, const float cooldown)
@@ -10,7 +12,7 @@ Weapon::Weapon(const float length, const float thickness, const float bulletSpee
 }
 
 void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &targetPos,
-    const std::vector<EnvItem> &envItems, const float spreadRadius)
+    const std::vector<EnvItem> &envItems, std::vector<Particle> &outParticles, const float spreadRadius)
 {
     anchor = anchorPos;
 
@@ -35,7 +37,7 @@ void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &
 
     for (auto it = bullets.begin(); it != bullets.end(); )
     {
-        if (!it->Update(delta, envItems))
+        if (!it->Update(delta, envItems, outParticles))
         {
             it = bullets.erase(it);
         }
@@ -59,3 +61,8 @@ void Weapon::Draw() const
         b.Draw();
     }
 }
+
+    [[nodiscard]] bool Weapon::IsCooling() const
+    {
+        return cooldownTimer > 0.0f;
+    }
