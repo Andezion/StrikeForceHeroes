@@ -35,6 +35,5 @@ private:
     std::vector<CameraUpdater> cameraUpdaters;
     int cameraOption = 0;
 
-    void UpdatePlayer(float delta);
     void InitScene();
 };
