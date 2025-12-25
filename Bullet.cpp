@@ -1,7 +1,8 @@
 #include "Bullet.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "Game.h" 
+#include "Game.h"
+#include "Particle.h"
 
 #include <cmath>
 #include <ctime>
@@ -43,7 +44,7 @@ Bullet::Bullet(const Vector2 &startPos, const Vector2 &aimTarget, const float sp
     }
 }
 
-bool Bullet::Update(const float delta, const std::vector<EnvItem> &envItems)
+bool Bullet::Update(const float delta, const std::vector<EnvItem> &envItems, std::vector<Particle> &outParticles)
 {
     if (!active)
     {
@@ -61,6 +62,15 @@ bool Bullet::Update(const float delta, const std::vector<EnvItem> &envItems)
 
         if (CheckCollisionCircleRec(pos, radius, rect))
         {
+            constexpr int count = 10;
+            for (int i = 0; i < count; ++i)
+            {
+                const float ang = RandomFloat(0.0f, 2.0f * PI);
+                const float spd = RandomFloat(40.0f, 240.0f);
+
+                const Vector2 v = { cosf(ang) * spd, sinf(ang) * spd };
+                outParticles.emplace_back(pos, v, RandomFloat(0.3f, 0.9f), RandomFloat(1.0f, 3.0f), DARKGRAY);
+            }
             active = false;
             return false;
         }
@@ -81,5 +91,21 @@ void Bullet::Draw() const
     {
         return;
     }
-    DrawCircleV(pos, radius, color);
+    // draw pill (rectangle + circles at ends) to approximate rounded rect
+    const float len = 12.0f;
+    const float halfLen = len * 0.5f;
+    const float thickness = radius * 2.0f;
+    const float rot = atan2f(vel.y, vel.x) * 180.0f / PI;
+
+    Rectangle rec = { pos.x - halfLen, pos.y - thickness * 0.5f, len, thickness };
+    Vector2 origin = { halfLen, thickness * 0.5f };
+    DrawRectanglePro(rec, origin, rot, DARKGRAY);
+
+    // circles at ends
+    const float rad = thickness * 0.5f;
+    const Vector2 dir = Vector2Normalize(vel);
+    const Vector2 a = Vector2Add(pos, Vector2Scale(dir, -halfLen));
+    const Vector2 b = Vector2Add(pos, Vector2Scale(dir, halfLen));
+    DrawCircleV(a, rad, DARKGRAY);
+    DrawCircleV(b, rad, DARKGRAY);
 }
