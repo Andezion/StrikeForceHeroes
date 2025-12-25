@@ -13,7 +13,7 @@ Player::Player()
 {
 }
 
-void Player::Update(float delta, const std::vector<EnvItem>& envItems)
+void Player::Update(const float delta, const std::vector<EnvItem>& envItems)
 {
 	constexpr float halfWidth = 10.0f;
 	constexpr float fullHeight = 60.0f;
