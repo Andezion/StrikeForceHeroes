@@ -91,21 +91,13 @@ void Bullet::Draw() const
     {
         return;
     }
-    // draw pill (rectangle + circles at ends) to approximate rounded rect
-    const float len = 12.0f;
-    const float halfLen = len * 0.5f;
+
+    constexpr float len = 12.0f;
+    constexpr float halfLen = len * 0.5f;
     const float thickness = radius * 2.0f;
     const float rot = atan2f(vel.y, vel.x) * 180.0f / PI;
 
-    Rectangle rec = { pos.x - halfLen, pos.y - thickness * 0.5f, len, thickness };
-    Vector2 origin = { halfLen, thickness * 0.5f };
+    const Rectangle rec = { pos.x - halfLen, pos.y - thickness * 0.5f, len, thickness };
+    const Vector2 origin = { halfLen, thickness * 0.5f };
     DrawRectanglePro(rec, origin, rot, DARKGRAY);
-
-    // circles at ends
-    const float rad = thickness * 0.5f;
-    const Vector2 dir = Vector2Normalize(vel);
-    const Vector2 a = Vector2Add(pos, Vector2Scale(dir, -halfLen));
-    const Vector2 b = Vector2Add(pos, Vector2Scale(dir, halfLen));
-    DrawCircleV(a, rad, DARKGRAY);
-    DrawCircleV(b, rad, DARKGRAY);
 }
