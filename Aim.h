@@ -7,7 +7,7 @@ class Aim
 public:
     enum class Type { Default = 0 };
 
-    Aim(Type type = Type::Default);
+    explicit Aim(Type type = Type::Default);
 
     void Update(const Vector2& playerWorld, const Vector2& cursorWorld, const Camera2D& camera);
     void Draw() const;
