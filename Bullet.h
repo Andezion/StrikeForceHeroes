@@ -13,7 +13,10 @@ public:
     bool Update(float delta, const std::vector<EnvItem> &envItems);
     void Draw() const;
 
-    bool IsActive() const { return active; }
+    [[nodiscard]] bool IsActive() const
+    {
+        return active;
+    }
 
 private:
     Vector2 pos{};
