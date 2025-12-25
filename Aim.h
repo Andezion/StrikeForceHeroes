@@ -12,6 +12,8 @@ public:
     void Update(const Vector2& playerWorld, const Vector2& cursorWorld, const Camera2D& camera);
     void Draw() const;
 
+    float GetRadius() const;
+
 private:
     Type type;
     Vector2 cursorScreen{};
