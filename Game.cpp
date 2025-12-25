@@ -256,6 +256,11 @@ void Game::Draw()
 
         EndMode2D();
 
+        const Vector2 mouseScreen2 = GetMousePosition();
+        const Vector2 mouseWorld2 = GetScreenToWorld2D(mouseScreen2, camera);
+        aim.Update(player.position, mouseWorld2, camera);
+        aim.Draw();
+
         DrawText("Controls:", 20, 20, 10, BLACK);
         DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
         DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
