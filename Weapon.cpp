@@ -1,6 +1,5 @@
 #include "Weapon.h"
 #include "raylib.h"
-#include "raymath.h"
 #include "Game.h" 
 #include <cmath>
 
@@ -10,7 +9,8 @@ Weapon::Weapon(const float length, const float thickness, const float bulletSpee
 {
 }
 
-void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &targetPos, const std::vector<EnvItem> &envItems, const float spreadRadius)
+void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &targetPos,
+    const std::vector<EnvItem> &envItems, const float spreadRadius)
 {
     anchor = anchorPos;
 
@@ -19,7 +19,10 @@ void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &
 
     rotationDegrees = atan2f(dy, dx) * 180.0f / PI;
 
-    if (cooldownTimer > 0.0f) cooldownTimer -= delta;
+    if (cooldownTimer > 0.0f)
+    {
+        cooldownTimer -= delta;
+    }
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && cooldownTimer <= 0.0f)
     {
