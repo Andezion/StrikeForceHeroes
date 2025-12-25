@@ -20,6 +20,7 @@ public:
 private:
     Vector2 pos{};
     Vector2 vel{};
+    Vector2 prevPos{};
     float radius = 4.0f;
     bool active = true;
     Color color = DARKGRAY;
