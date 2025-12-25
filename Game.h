@@ -11,6 +11,7 @@ struct EnvItem {
 
 #include "Player.h"
 #include "Aim.h"
+#include "Particle.h"
 
 class Game
 {
@@ -30,6 +31,8 @@ private:
     Camera2D camera{};
 
     Aim aim{ Aim::Type::Default };
+
+    std::vector<Particle> particles;
 
     using CameraUpdater = void(*)(Camera2D*, Player*, EnvItem*, int, float, float, float);
     std::vector<CameraUpdater> cameraUpdaters;
