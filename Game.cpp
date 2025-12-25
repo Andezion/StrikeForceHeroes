@@ -224,6 +224,11 @@ void Game::Update(const float delta)
 
     cameraUpdaters[2 % static_cast<int>(cameraUpdaters.size())](&camera, &player, envItems.data(), static_cast<int>(envItems.size()),
         delta, static_cast<float>(screenWidth), static_cast<float>(screenHeight));
+
+    const Vector2 mouseScreen = GetMousePosition();
+    const Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
+    const Vector2 weaponAnchor = { player.position.x, player.position.y - 35.0f };
+    player.weapon.Update(delta, weaponAnchor, mouseWorld, envItems, aim.GetRadius());
 }
 
 void Game::Draw()
@@ -244,8 +249,6 @@ void Game::Draw()
             const Vector2 mouseScreen = GetMousePosition();
             const Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
             const Vector2 weaponAnchor = { player.position.x, player.position.y - 35.0f };
-
-            player.weapon.Update(weaponAnchor, mouseWorld);
 
             DrawRectangleRec(playerRect, RED);
             player.weapon.Draw();
