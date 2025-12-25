@@ -228,7 +228,14 @@ void Game::Update(const float delta)
     const Vector2 mouseScreen = GetMousePosition();
     const Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
     const Vector2 weaponAnchor = { player.position.x, player.position.y - 35.0f };
-    player.weapon.Update(delta, weaponAnchor, mouseWorld, envItems, aim.GetRadius());
+    player.weapon.Update(delta, weaponAnchor, mouseWorld, envItems, particles, aim.GetRadius());
+
+    // update particles lifetimes
+    for (auto it = particles.begin(); it != particles.end(); )
+    {
+        if (!it->Update(delta)) it = particles.erase(it);
+        else ++it;
+    }
 }
 
 void Game::Draw()
@@ -249,11 +256,26 @@ void Game::Draw()
             DrawRectangleRec(playerRect, RED);
             player.weapon.Draw();
 
+            for (auto &p : particles)
+            {
+                p.Draw();
+            }
+
         EndMode2D();
 
         const Vector2 mouseScreen2 = GetMousePosition();
         const Vector2 mouseWorld2 = GetScreenToWorld2D(mouseScreen2, camera);
         aim.Update(player.position, mouseWorld2, camera);
+
+
+        if (player.weapon.IsCooling())
+        {
+            aim.SetColor(ORANGE);
+        }
+        else
+        {
+            aim.SetColor(RED);
+        }
         aim.Draw();
 
         DrawText("Controls:", 20, 20, 10, BLACK);
