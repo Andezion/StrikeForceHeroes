@@ -13,6 +13,7 @@ public:
     void Draw() const;
 
     [[nodiscard]] float GetRadius() const;
+    void SetColor(Color c);
 
 private:
     Type type;
