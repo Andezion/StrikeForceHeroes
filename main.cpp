@@ -18,8 +18,7 @@ int main()
     {
         const float deltaTime = GetFrameTime();
 
-        const Vector2 mousePosition = GetMousePosition();
-        DrawCircleV(mousePosition, 15.0f, WHITE);
+        (void)GetMousePosition();
 
         game.Update(deltaTime);
         game.Draw();
