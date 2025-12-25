@@ -4,9 +4,9 @@
 
 #include <cmath>
 
-#define G 450
-#define PLAYER_JUMP_SPD 450.0f
-#define PLAYER_HOR_SPD 300.0f
+#define G 600
+#define PLAYER_JUMP_SPD 500.0f
+#define PLAYER_HOR_SPD 400.0f
 
 Player::Player()
 	: position{100.0f, 500.0f}, speed(0.0f), canJump(false)
