@@ -4,10 +4,6 @@
 
 #include <cmath>
 
-#define G 450
-#define PLAYER_JUMP_SPD 450.0f
-#define PLAYER_HOR_SPD 300.0f
-
 static void UpdateCameraCenter(Camera2D *camera, Player *player,
     EnvItem *envItems, int envItemsLength,
     float delta, const float width, const float height)
