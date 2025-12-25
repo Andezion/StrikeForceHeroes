@@ -9,6 +9,7 @@ int main()
     constexpr int screenHeight = 900;
 
     InitWindow(screenWidth, screenHeight, "StrikeForceHeroes");
+    HideCursor();
     SetTargetFPS(60);
 
     Game game(screenWidth, screenHeight);
@@ -24,6 +25,7 @@ int main()
         game.Draw();
     }
 
+    ShowCursor();
     CloseWindow();
     return 0;
 }
