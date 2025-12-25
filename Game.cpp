@@ -263,6 +263,46 @@ void Game::Draw()
 
         EndMode2D();
 
+            {
+                float minX = 3000, minY = 2000, maxX = -3000, maxY = -2000;
+                for (auto &[rect, blocking, color] : envItems)
+                {
+                    minX = fminf(rect.x, minX);
+                    maxX = fmaxf(rect.x + rect.width, maxX);
+                    minY = fminf(rect.y, minY);
+                    maxY = fmaxf(rect.y + rect.height, maxY);
+                }
+
+                const auto [x, y] = GetWorldToScreen2D(Vector2{ minX, minY }, camera);
+                const auto [x1, y1] = GetWorldToScreen2D(Vector2{ maxX, maxY }, camera);
+
+                const float left = fmaxf(0.0f, x);
+                const float top = fmaxf(0.0f, y);
+                const float right = fminf(static_cast<float>(screenWidth), x1);
+                const float bottom = fminf(static_cast<float>(screenHeight), y1);
+
+                const Color overlay = Fade(DARKGRAY, 0.6f);
+
+                if (top > 0.0f)
+                {
+                    DrawRectangle(0, 0, screenWidth, static_cast<int>(top), overlay);
+                }
+                if (bottom < static_cast<float>(screenHeight))
+                {
+                    DrawRectangle(0, static_cast<int>(bottom), screenWidth, screenHeight - static_cast<int>(bottom), overlay);
+                }
+                if (left > 0.0f && bottom > top)
+                {
+                    DrawRectangle(0, static_cast<int>(top), static_cast<int>(left),
+                        static_cast<int>(bottom - top), overlay);
+                }
+                if (right < static_cast<float>(screenWidth) && bottom > top)
+                {
+                    DrawRectangle(static_cast<int>(right), static_cast<int>(top),
+                        screenWidth - static_cast<int>(right), static_cast<int>(bottom - top), overlay);
+                }
+            }
+
         const Vector2 mouseScreen2 = GetMousePosition();
         const Vector2 mouseWorld2 = GetScreenToWorld2D(mouseScreen2, camera);
         aim.Update(player.position, mouseWorld2, camera);
