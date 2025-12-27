@@ -12,16 +12,23 @@ NetworkClient::~NetworkClient()
 
 bool NetworkClient::connectTo(const std::string& host, const uint16_t port)
 {
-    if (running_) return true;
-    if (enet_initialize() != 0) {
+    if (running_)
+    {
+        return true;
+    }
+
+    if (enet_initialize() != 0)
+    {
         std::cerr << "ENet initialization failed\n";
         return false;
     }
 
     client_ = enet_host_create(nullptr, 1, 2, 0, 0);
-    if (!client_) {
+    if (!client_)
+    {
         std::cerr << "Failed to create ENet client host\n";
         enet_deinitialize();
+
         return false;
     }
 
@@ -30,21 +37,26 @@ bool NetworkClient::connectTo(const std::string& host, const uint16_t port)
     address.port = port;
 
     peer_ = enet_host_connect(client_, &address, 2, 0);
-    if (!peer_) {
+    if (!peer_)
+    {
         std::cerr << "No available peers for initiating an ENet connection\n";
         enet_host_destroy(client_);
+
         client_ = nullptr;
         enet_deinitialize();
         return false;
     }
 
-    /* Wait up to 5 seconds for the connection attempt to succeed. */
     ENetEvent event;
-    if (enet_host_service(client_, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+    if (enet_host_service(client_, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
+    {
         std::cout << "Connection to " << host << ":" << port << " succeeded.\n";
-    } else {
+    }
+    else
+    {
         enet_peer_reset(peer_);
         std::cerr << "Connection to " << host << ":" << port << " failed.\n";
+
         enet_host_destroy(client_);
         client_ = nullptr;
         enet_deinitialize();
@@ -58,16 +70,31 @@ bool NetworkClient::connectTo(const std::string& host, const uint16_t port)
 
 void NetworkClient::disconnect()
 {
-    if (!running_) return;
+    if (!running_)
+    {
+        return;
+    }
+
     running_ = false;
-    if (thread_.joinable()) thread_.join();
-    if (client_) {
-        if (peer_) {
+    if (thread_.joinable())
+    {
+        thread_.join();
+    }
+    if (client_)
+    {
+        if (peer_)
+        {
             enet_peer_disconnect(peer_, 0);
             ENetEvent event;
-            while (enet_host_service(client_, &event, 3000) > 0) {
-                if (event.type == ENET_EVENT_TYPE_DISCONNECT) break;
+
+            while (enet_host_service(client_, &event, 3000) > 0)
+            {
+                if (event.type == ENET_EVENT_TYPE_DISCONNECT)
+                {
+                    break;
+                }
             }
+
             enet_peer_reset(peer_);
             peer_ = nullptr;
         }
@@ -77,9 +104,12 @@ void NetworkClient::disconnect()
     enet_deinitialize();
 }
 
-void NetworkClient::send(const std::vector<uint8_t>& data)
+void NetworkClient::send(const std::vector<uint8_t>& data) const
 {
-    if (!peer_) return;
+    if (!peer_)
+    {
+        return;
+    }
     ENetPacket* packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(peer_, 0, packet);
     enet_host_flush(client_);
