@@ -110,6 +110,7 @@ void NetworkClient::send(const std::vector<uint8_t>& data) const
     {
         return;
     }
+
     ENetPacket* packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(peer_, 0, packet);
     enet_host_flush(client_);
@@ -122,13 +123,22 @@ void NetworkClient::setReceiveCallback(std::function<void(const std::vector<uint
 
 void NetworkClient::serviceLoop()
 {
-    while (running_) {
+    while (running_)
+    {
         ENetEvent event;
-        while (enet_host_service(client_, &event, 100) > 0) {
-            switch (event.type) {
-                case ENET_EVENT_TYPE_RECEIVE: {
-                    std::vector<uint8_t> data((uint8_t*)event.packet->data, (uint8_t*)event.packet->data + event.packet->dataLength);
-                    if (callback_) callback_(data);
+        while (enet_host_service(client_, &event, 100) > 0)
+        {
+            switch (event.type)
+            {
+                case ENET_EVENT_TYPE_RECEIVE:
+                {
+                    std::vector data(event.packet->data, event.packet->data + event.packet->dataLength);
+
+                    if (callback_)
+                    {
+                        callback_(data);
+                    }
+
                     enet_packet_destroy(event.packet);
                     break;
                 }
