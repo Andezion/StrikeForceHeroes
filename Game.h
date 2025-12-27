@@ -12,6 +12,10 @@ struct EnvItem {
 #include "Player.h"
 #include "Aim.h"
 #include "Particle.h"
+#include "NetworkClient.h"
+
+#include <unordered_map>
+#include <cstdint>
 
 class Game
 {
@@ -39,4 +43,11 @@ private:
     int cameraOption = 0;
 
     void InitScene();
+
+    NetworkClient netClient;
+    uint32_t clientId = 0;
+    std::unordered_map<uint32_t, Vector2> remotePlayers;
+
+    float sendTimer = 0.0f;
+    static inline constexpr float SEND_PERIOD = 0.1f;
 };
