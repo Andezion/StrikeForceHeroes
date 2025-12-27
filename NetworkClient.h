@@ -6,10 +6,11 @@
 #include <functional>
 #include <string>
 
-struct _ENetHost;
-struct _ENetPeer;
+struct ENetHost;
+struct ENetPeer;
 
-class NetworkClient {
+class NetworkClient
+{
 public:
     NetworkClient();
     ~NetworkClient();
@@ -22,9 +23,10 @@ public:
 private:
     void serviceLoop();
 
-    struct _ENetHost* client_ = nullptr;
-    struct _ENetPeer* peer_ = nullptr;
+    ENetHost* client_ = nullptr;
+    ENetPeer* peer_ = nullptr;
     std::thread thread_;
+
     std::atomic<bool> running_{false};
     std::function<void(const std::vector<uint8_t>&)> callback_;
 };
