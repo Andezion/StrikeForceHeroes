@@ -3,6 +3,9 @@
 #include "raymath.h"
 
 #include <cmath>
+#include <sstream>
+#include <cstdlib>
+#include <ctime>
 
 static void UpdateCameraCenter(Camera2D *camera, Player *player,
     EnvItem *envItems, int envItemsLength,
@@ -164,6 +167,30 @@ Game::Game(const int screenWidth, const int screenHeight)
         UpdateCameraEvenOutOnLanding,
         UpdateCameraPlayerBoundsPush
     };
+
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    clientId = static_cast<uint32_t>(std::rand());
+
+    if (netClient.connectTo("127.0.0.1", 1234))
+    {
+        netClient.setReceiveCallback([this](const std::vector<uint8_t>& data){
+            const std::string s(data.begin(), data.end());
+            std::istringstream iss(s);
+            std::string cmd;
+            iss >> cmd;
+
+            if (cmd == "POS")
+            {
+                uint32_t id = 0; float x = 0, y = 0;
+                iss >> id >> x >> y;
+
+                if (id != clientId)
+                {
+                    remotePlayers[id] = Vector2{ x, y };
+                }
+            }
+        });
+    }
 }
 
 Game::~Game() = default;
@@ -205,6 +232,19 @@ void Game::InitScene()
 void Game::Update(const float delta)
 {
     player.Update(delta, envItems);
+
+    sendTimer += delta;
+    if (sendTimer >= SEND_PERIOD)
+    {
+        sendTimer = 0.0f;
+
+        char buf[128];
+        if (const int n = snprintf(buf, sizeof(buf), "POS %u %.2f %.2f", player.position.x, player.position.y); n > 0)
+        {
+            const std::vector<uint8_t> v(buf, buf + n);
+            netClient.send(v);
+        }
+    }
 
     camera.zoom += GetMouseWheelMove() * 0.05f;
 
@@ -254,8 +294,14 @@ void Game::Draw()
             }
 
             const Rectangle playerRect = { player.position.x - 10, player.position.y - 60, 20.0f, 60.0f };
-
             DrawRectangleRec(playerRect, RED);
+
+            for (const auto &[fst, snd] : remotePlayers)
+            {
+                const auto &[x, y] = snd;
+                const Rectangle r = { x - 10, y - 60, 20.0f, 60.0f };
+                DrawRectangleRec(r, BLUE);
+            }
             player.weapon.Draw();
 
             for (auto &p : particles)
