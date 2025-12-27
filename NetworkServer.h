@@ -14,10 +14,10 @@ public:
 
     bool start();
     void stop();
-    void broadcast(const std::vector<uint8_t>& data);
+    void broadcast(const std::vector<uint8_t>& data) const;
 
 private:
-    void serviceLoop();
+    void serviceLoop() const;
 
     _ENetHost* host_ = nullptr;
     uint16_t port_;
