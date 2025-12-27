@@ -12,6 +12,8 @@ int main(int argc, char** argv)
     {
         std::string mode = argv[1];
 
+        std::cout << "popa" << std::endl;
+
         if (mode == "server")
         {
             uint16_t port = 1234;
