@@ -6,8 +6,8 @@
 #include <functional>
 #include <string>
 
-struct ENetHost;
-struct ENetPeer;
+struct _ENetHost;
+struct _ENetPeer;
 
 class NetworkClient
 {
@@ -23,8 +23,8 @@ public:
 private:
     void serviceLoop();
 
-    ENetHost* client_ = nullptr;
-    ENetPeer* peer_ = nullptr;
+    struct _ENetHost* client_ = nullptr;
+    struct _ENetPeer* peer_ = nullptr;
     std::thread thread_;
 
     std::atomic<bool> running_{false};
