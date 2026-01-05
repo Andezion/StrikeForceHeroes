@@ -14,9 +14,13 @@ public:
     float speed;
     bool canJump;
 
+    int health;
+    int maxHealth;
+
     Weapon weapon;
 
     void Update(float delta, const std::vector<EnvItem>& envItems);
+    void Draw();
 };
 
 
