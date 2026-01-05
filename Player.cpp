@@ -11,6 +11,8 @@
 Player::Player()
 	: position{100.0f, 500.0f}, speed(0.0f), canJump(false)
 {
+	health = 100;
+	maxHealth = 100;
 }
 
 void Player::Update(const float delta, const std::vector<EnvItem>& envItems)
@@ -91,4 +93,28 @@ void Player::Update(const float delta, const std::vector<EnvItem>& envItems)
 	}
 
 	canJump = grounded;
+}
+
+void Player::Draw()
+{
+	constexpr float halfWidth = 10.0f;
+	constexpr float fullHeight = 60.0f;
+
+	const Rectangle playerRect = { position.x - halfWidth, position.y - fullHeight, halfWidth * 2.0f, fullHeight };
+	DrawRectangleRec(playerRect, RED);
+
+	// Health bar
+	const float barWidth = halfWidth * 2.0f;
+	const float barHeight = 5.0f;
+	const float gap = 6.0f;
+	const float barX = position.x - barWidth / 2.0f;
+	const float barY = position.y - fullHeight - gap - barHeight;
+
+	// Background (dark)
+	DrawRectangleRec({ barX - 1.0f, barY - 1.0f, barWidth + 2.0f, barHeight + 2.0f }, DARKGRAY);
+
+	// Foreground (red) proportional to health
+	float healthRatio = 0.0f;
+	if (maxHealth > 0) healthRatio = static_cast<float>(health) / static_cast<float>(maxHealth);
+	DrawRectangleRec({ barX, barY, barWidth * healthRatio, barHeight }, RED);
 }
