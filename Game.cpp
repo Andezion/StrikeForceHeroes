@@ -293,8 +293,7 @@ void Game::Draw()
                 DrawRectangleRec(rect, color);
             }
 
-            const Rectangle playerRect = { player.position.x - 10, player.position.y - 60, 20.0f, 60.0f };
-            DrawRectangleRec(playerRect, RED);
+            player.Draw();
 
             for (const auto &[fst, snd] : remotePlayers)
             {
