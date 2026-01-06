@@ -12,33 +12,56 @@ NetworkServer::~NetworkServer()
 
 bool NetworkServer::start()
 {
+    std::cout << "[NetworkServer] Starting...\n";
+    std::cout.flush();
+    
     if (running_)
     {
+        std::cout << "[NetworkServer] Already running\n";
+        std::cout.flush();
         return true;
     }
 
+    std::cout << "[NetworkServer] Initializing ENet...\n";
+    std::cout.flush();
+    
     if (enet_initialize() != 0)
     {
-        std::cerr << "ENet initialization failed\n";
+        std::cerr << "[NetworkServer] ERROR: ENet initialization failed\n";
+        std::cerr.flush();
         return false;
     }
+
+    std::cout << "[NetworkServer] ENet initialized successfully\n";
+    std::cout.flush();
 
     ENetAddress address;
     address.host = ENET_HOST_ANY;
     address.port = port_;
 
+    std::cout << "[NetworkServer] Creating host on port " << port_ << "...\n";
+    std::cout.flush();
+
     host_ = enet_host_create(&address, 32, 2, 0, 0);
 
     if (!host_)
     {
-        std::cerr << "Failed to create ENet server host\n";
+        std::cerr << "[NetworkServer] ERROR: Failed to create ENet server host (port " << port_ << " may be in use)\n";
+        std::cerr.flush();
         enet_deinitialize();
 
         return false;
     }
 
+    std::cout << "[NetworkServer] Host created successfully\n";
+    std::cout.flush();
+
     running_ = true;
     thread_ = std::thread(&NetworkServer::serviceLoop, this);
+    
+    std::cout << "[NetworkServer] Service thread started\n";
+    std::cout.flush();
+    
     return true;
 }
 
