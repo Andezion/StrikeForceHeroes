@@ -8,11 +8,20 @@
 
 int main(int argc, char** argv)
 {
+    std::cout << "=== War Game Starting ===\n";
+    std::cout << "Arguments count: " << argc << "\n";
+    for (int i = 0; i < argc; ++i)
+    {
+        std::cout << "  argv[" << i << "] = " << argv[i] << "\n";
+    }
+    std::cout.flush();
+    
     if (argc > 1)
     {
         std::string mode = argv[1];
 
-        std::cout << "popa" << std::endl;
+        std::cout << "Mode: " << mode << std::endl;
+        std::cout.flush();
 
         if (mode == "server")
         {
@@ -22,14 +31,19 @@ int main(int argc, char** argv)
                 port = static_cast<uint16_t>(std::stoi(argv[2]));
             }
 
+            std::cout << "Starting server on port " << port << "...\n";
+            std::cout.flush();
+
             NetworkServer server(port);
             if (!server.start())
             {
                 std::cerr << "Failed to start server\n";
+                std::cerr.flush();
                 return 1;
             }
 
             std::cout << "Server running on port " << port << ". Press ENTER to stop.\n";
+            std::cout.flush();
 
             std::string dummy;
             std::getline(std::cin, dummy);
