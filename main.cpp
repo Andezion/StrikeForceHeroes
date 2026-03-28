@@ -4,7 +4,6 @@
 #include <string>
 #include <iostream>
 #include "NetworkClient.h"
-#include <chrono>
 
 int main(int argc, char** argv)
 {
