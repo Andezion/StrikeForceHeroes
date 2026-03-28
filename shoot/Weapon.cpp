@@ -30,7 +30,8 @@ Weapon::Weapon(const float length, const float thickness, const float bulletSpee
       cooldown(cooldown), cooldownTimer(0.0f), bulletSpeed(bulletSpeed), bullets() {}
 
 void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &targetPos,
-    const std::vector<EnvItem> &envItems, std::vector<Particle> &outParticles, const float spreadRadius)
+    const std::vector<EnvItem> &envItems, std::vector<Particle> &outParticles,
+    const float spreadRadius, const bool forceFire)
 {
     anchor = anchorPos;
 
@@ -44,7 +45,7 @@ void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &
         cooldownTimer -= delta;
     }
 
-    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && cooldownTimer <= 0.0f)
+    if ((IsMouseButtonDown(MOUSE_LEFT_BUTTON) || forceFire) && cooldownTimer <= 0.0f)
     {
         const float rad = rotationDegrees * PI / 180.0f;
         const Vector2 endPos = { anchor.x + cosf(rad) * length, anchor.y + sinf(rad) * length };
@@ -82,6 +83,19 @@ void Weapon::Update(const float delta, const Vector2 &anchorPos, const Vector2 &
             ++it;
         }
     }
+}
+
+int Weapon::CheckHit(const Rectangle target, std::vector<Particle> &outParticles)
+{
+    int hits = 0;
+    for (auto &b : bullets)
+    {
+        if (b.TryHit(target, outParticles))
+        {
+            ++hits;
+        }
+    }
+    return hits;
 }
 
 void Weapon::Draw() const
