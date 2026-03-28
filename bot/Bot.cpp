@@ -39,9 +39,8 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
     constexpr float halfWidth  = 10.0f;
     constexpr float fullHeight = 60.0f;
 
-    // ── AI: state transitions ──────────────────────────────────────────────
     const float dx   = playerPos.x - position.x;
-    const float dy   = playerPos.y - position.y; // positive => player is below bot
+    const float dy   = playerPos.y - position.y; 
     const float dist = sqrtf(dx * dx + dy * dy);
 
     const bool playerVisible = (dist <= visionRadius);
