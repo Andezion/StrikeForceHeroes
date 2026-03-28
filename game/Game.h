@@ -9,10 +9,10 @@ struct EnvItem {
     Color color;
 };
 
-#include "game/Player.h"
-#include "shoot/Aim.h"
-#include "shoot/Particle.h"
-#include "network/NetworkClient.h"
+#include "Player.h"
+#include "Aim.h"
+#include "Particle.h"
+#include "NetworkClient.h"
 
 #include <unordered_map>
 #include <cstdint>
