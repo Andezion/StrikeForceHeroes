@@ -55,7 +55,6 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
         idleTimer = 0.0f;
     }
 
-    // ── AI: determine movement intent ─────────────────────────────────────
     float moveDir   = 0.0f;
     bool  wantsJump = false;
     bool  shouldFire = false;
@@ -68,7 +67,7 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
             {
                 state       = BotState::PATROL;
                 patrolDir   = (std::rand() % 2 == 0) ? -1.0f : 1.0f;
-                patrolTimer = 2.0f + (1.0f - difficulty) * 2.0f; // 2-4 sec patrol
+                patrolTimer = 2.0f + (1.0f - difficulty) * 2.0f; 
                 idleTimer   = 0.0f;
             }
             break;
@@ -89,14 +88,12 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
             break;
 
         case BotState::ATTACK:
-            // Close-in slowly; stop at comfortable shooting distance
             if (dist > 200.0f) moveDir = (dx > 0.0f) ? 0.7f : -0.7f;
             if (dy < -60.0f && canJump) wantsJump = true;
             shouldFire = true;
             break;
     }
 
-    // ── Physics: horizontal movement ──────────────────────────────────────
     position.x += moveDir * HOR_SPEED * delta;
 
     // ── Physics: jump ─────────────────────────────────────────────────────
