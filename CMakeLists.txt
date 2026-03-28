@@ -21,16 +21,22 @@ FetchContent_MakeAvailable(enet)
 
 
 add_executable(War main.cpp
-        Game.cpp Game.h
-        Player.cpp Player.h
-        Weapon.cpp Weapon.h
-        Aim.cpp Aim.h
-        Bullet.cpp Bullet.h
-        Particle.cpp Particle.h)
+        game/Game.cpp game/Game.h
+        game/Player.cpp game/Player.h
+        shoot/Weapon.cpp shoot/Weapon.h
+        shoot/Aim.cpp shoot/Aim.h
+        shoot/Bullet.cpp shoot/Bullet.h
+        shoot/Particle.cpp shoot/Particle.h)
 
 target_sources(War PRIVATE
-        NetworkServer.cpp NetworkClient.h
-        NetworkClient.cpp NetworkServer.h
+        network/NetworkServer.cpp network/NetworkServer.h
+        network/NetworkClient.cpp network/NetworkClient.h
+)
+
+target_include_directories(War PRIVATE
+        ${CMAKE_SOURCE_DIR}/game
+        ${CMAKE_SOURCE_DIR}/shoot
+        ${CMAKE_SOURCE_DIR}/network
 )
 
 target_link_libraries(War PRIVATE raylib)
