@@ -17,7 +17,7 @@ Bot::Bot(const Vector2 startPos, const float difficulty, const float aggression)
       damageMultiplier(0.5f + difficulty * 1.5f),
       maxIdleTime(3.0f - difficulty * 2.5f),
       visionRadius(200.0f + aggression * 600.0f),
-      weapon(50.0f, 6.0f, 1600.0f, 1.2f - difficulty * 0.7f), // faster cooldown at higher difficulty
+      weapon(50.0f, 6.0f, 1600.0f, 1.2f - difficulty * 0.7f), 
       state(BotState::IDLE),
       idleTimer(0.0f),
       patrolTimer(0.0f),
