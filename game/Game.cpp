@@ -228,11 +228,10 @@ void Game::InitScene()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    // Spawn bots with varied difficulty and aggression
     bots.clear();
-    bots.emplace_back(Vector2{ 1800.0f, 500.0f }, 0.2f, 0.3f); // easy, low aggression
-    bots.emplace_back(Vector2{ 1200.0f, 400.0f }, 0.6f, 0.7f); // medium
-    bots.emplace_back(Vector2{  700.0f, 100.0f }, 1.0f, 1.0f); // hard, max aggression
+    bots.emplace_back(Vector2{ 1800.0f, 500.0f }, 0.2f, 0.3f); 
+    bots.emplace_back(Vector2{ 1200.0f, 400.0f }, 0.6f, 0.7f); 
+    bots.emplace_back(Vector2{  700.0f, 100.0f }, 1.0f, 1.0f); 
 }
 
 void Game::Update(const float delta)
