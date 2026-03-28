@@ -13,6 +13,7 @@ public:
     Bullet(const Vector2 &startPos, const Vector2 &initialVel, float spreadRadius = 0.0f);
 
     bool Update(float delta, const std::vector<EnvItem> &envItems, std::vector<Particle> &outParticles);
+    bool TryHit(Rectangle target, std::vector<Particle> &outParticles);
     void Draw() const;
 
     [[nodiscard]] bool IsActive() const { return active; }
