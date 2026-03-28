@@ -227,11 +227,57 @@ void Game::InitScene()
     camera.offset = Vector2{ static_cast<float>(screenWidth) / 2.0f, static_cast<float>(screenHeight) / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
+
+    // Spawn bots with varied difficulty and aggression
+    bots.clear();
+    bots.emplace_back(Vector2{ 1800.0f, 500.0f }, 0.2f, 0.3f); // easy, low aggression
+    bots.emplace_back(Vector2{ 1200.0f, 400.0f }, 0.6f, 0.7f); // medium
+    bots.emplace_back(Vector2{  700.0f, 100.0f }, 1.0f, 1.0f); // hard, max aggression
 }
 
 void Game::Update(const float delta)
 {
     player.Update(delta, envItems);
+
+    // ── Bots: update AI + physics ──────────────────────────────────────────
+    for (auto& bot : bots)
+    {
+        bot.Update(delta, envItems, player.position, particles);
+    }
+
+    // ── Damage: player bullets → bots ─────────────────────────────────────
+    constexpr int PLAYER_BULLET_DAMAGE = 10;
+    for (auto& bot : bots)
+    {
+        if (bot.IsDead()) continue;
+        const int hits = player.weapon.CheckHit(bot.GetRect(), particles);
+        if (hits > 0)
+        {
+            bot.health -= hits * PLAYER_BULLET_DAMAGE;
+            if (bot.health < 0) bot.health = 0;
+        }
+    }
+
+    // ── Damage: bot bullets → player ──────────────────────────────────────
+    constexpr float halfWidth  = 10.0f;
+    constexpr float fullHeight = 60.0f;
+    const Rectangle playerRect = {
+        player.position.x - halfWidth,
+        player.position.y - fullHeight,
+        halfWidth * 2.0f,
+        fullHeight
+    };
+    for (auto& bot : bots)
+    {
+        if (bot.IsDead()) continue;
+        const int hits = bot.weapon.CheckHit(playerRect, particles);
+        if (hits > 0)
+        {
+            const int dmg = static_cast<int>(hits * 10 * bot.damageMultiplier);
+            player.health -= dmg;
+            if (player.health < 0) player.health = 0;
+        }
+    }
 
     sendTimer += delta;
     if (sendTimer >= SEND_PERIOD)
@@ -294,6 +340,11 @@ void Game::Draw()
             }
 
             player.Draw();
+
+            for (auto& bot : bots)
+            {
+                bot.Draw();
+            }
 
             for (const auto &[fst, snd] : remotePlayers)
             {
