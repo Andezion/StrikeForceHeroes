@@ -239,13 +239,11 @@ void Game::Update(const float delta)
 {
     player.Update(delta, envItems);
 
-    // ── Bots: update AI + physics ──────────────────────────────────────────
     for (auto& bot : bots)
     {
         bot.Update(delta, envItems, player.position, particles);
     }
 
-    // ── Damage: player bullets → bots ─────────────────────────────────────
     constexpr int PLAYER_BULLET_DAMAGE = 10;
     for (auto& bot : bots)
     {
@@ -258,7 +256,6 @@ void Game::Update(const float delta)
         }
     }
 
-    // ── Damage: bot bullets → player ──────────────────────────────────────
     constexpr float halfWidth  = 10.0f;
     constexpr float fullHeight = 60.0f;
     const Rectangle playerRect = {
