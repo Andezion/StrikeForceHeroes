@@ -183,7 +183,6 @@ void Bot::Draw() const
                            halfWidth * 2.0f, fullHeight };
     DrawRectangleRec(r, bodyColor);
 
-    // Health bar (green fill)
     const float barWidth = halfWidth * 2.0f;
     const float barX     = position.x - barWidth / 2.0f;
     const float barY     = position.y - fullHeight - 11.0f;
