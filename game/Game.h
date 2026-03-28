@@ -13,6 +13,7 @@ struct EnvItem {
 #include "Aim.h"
 #include "Particle.h"
 #include "NetworkClient.h"
+#include "Bot.h"
 
 #include <unordered_map>
 #include <cstdint>
@@ -32,6 +33,7 @@ private:
 
     Player player{};
     std::vector<EnvItem> envItems;
+    std::vector<Bot> bots;
     Camera2D camera{};
 
     Aim aim{ Aim::Type::Default };
