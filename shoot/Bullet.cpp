@@ -73,6 +73,22 @@ bool Bullet::Update(const float delta, const std::vector<EnvItem> &envItems, std
     return true;
 }
 
+bool Bullet::TryHit(const Rectangle target, std::vector<Particle> &outParticles)
+{
+    if (!active) return false;
+    if (!CheckCollisionCircleRec(pos, radius, target)) return false;
+
+    for (int i = 0; i < 10; ++i)
+    {
+        const float ang = RandomFloat(0.0f, 2.0f * PI);
+        const float spd = RandomFloat(40.0f, 240.0f);
+        outParticles.emplace_back(pos, Vector2{cosf(ang) * spd, sinf(ang) * spd},
+            RandomFloat(0.3f, 0.9f), RandomFloat(1.0f, 3.0f), DARKGRAY);
+    }
+    active = false;
+    return true;
+}
+
 void Bullet::Draw() const
 {
     if (!active)
