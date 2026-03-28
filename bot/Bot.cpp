@@ -158,7 +158,6 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
 
     canJump = grounded;
 
-    // ── Weapon: aim at player, fire only when attacking ───────────────────
     const Vector2 anchor = { position.x, position.y - 35.0f };
     weapon.Update(delta, anchor, playerPos, envItems, particles, 0.0f, shouldFire);
 }
@@ -170,14 +169,13 @@ void Bot::Draw() const
     constexpr float halfWidth  = 10.0f;
     constexpr float fullHeight = 60.0f;
 
-    // Body colour reflects current AI state
     Color bodyColor;
     switch (state)
     {
-        case BotState::IDLE:   bodyColor = Color{ 40,  110, 210, 255 }; break; // calm blue
-        case BotState::PATROL: bodyColor = Color{ 60,  140, 230, 255 }; break; // lighter blue
-        case BotState::CHASE:  bodyColor = Color{ 220, 120,  20, 255 }; break; // orange — alert
-        case BotState::ATTACK: bodyColor = Color{ 210,  35,  35, 255 }; break; // red — aggressive
+        case BotState::IDLE:   bodyColor = Color{ 40,  110, 210, 255 }; break; 
+        case BotState::PATROL: bodyColor = Color{ 60,  140, 230, 255 }; break; 
+        case BotState::CHASE:  bodyColor = Color{ 220, 120,  20, 255 }; break; 
+        case BotState::ATTACK: bodyColor = Color{ 210,  35,  35, 255 }; break; 
         default:               bodyColor = BLUE;
     }
 
