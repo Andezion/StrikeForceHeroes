@@ -239,7 +239,7 @@ void Game::Update(const float delta)
         sendTimer = 0.0f;
 
         char buf[128];
-        if (const int n = snprintf(buf, sizeof(buf), "POS %u %.2f %.2f", player.position.x, player.position.y); n > 0)
+        if (const int n = snprintf(buf, sizeof(buf), "POS %u %.2f %.2f", clientId, player.position.x, player.position.y); n > 0)
         {
             const std::vector<uint8_t> v(buf, buf + n);
             netClient.send(v);
