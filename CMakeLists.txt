@@ -26,7 +26,8 @@ add_executable(War main.cpp
         shoot/Weapon.cpp shoot/Weapon.h
         shoot/Aim.cpp shoot/Aim.h
         shoot/Bullet.cpp shoot/Bullet.h
-        shoot/Particle.cpp shoot/Particle.h)
+        shoot/Particle.cpp shoot/Particle.h
+        bot/Bot.cpp bot/Bot.h)
 
 target_sources(War PRIVATE
         network/NetworkServer.cpp network/NetworkServer.h
@@ -37,6 +38,7 @@ target_include_directories(War PRIVATE
         ${CMAKE_SOURCE_DIR}/game
         ${CMAKE_SOURCE_DIR}/shoot
         ${CMAKE_SOURCE_DIR}/network
+        ${CMAKE_SOURCE_DIR}/bot
 )
 
 target_link_libraries(War PRIVATE raylib)
