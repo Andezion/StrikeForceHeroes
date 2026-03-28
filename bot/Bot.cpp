@@ -96,18 +96,15 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
 
     position.x += moveDir * HOR_SPEED * delta;
 
-    // ── Physics: jump ─────────────────────────────────────────────────────
     if (wantsJump && canJump)
     {
         speed   = -JUMP_SPEED;
         canJump = false;
     }
 
-    // ── Physics: gravity + vertical movement ──────────────────────────────
     speed      += GRAVITY * delta;
     position.y += speed * delta;
 
-    // ── Physics: collision resolution (mirrors Player logic) ──────────────
     Rectangle botRect = {
         position.x - halfWidth,
         position.y - fullHeight,
@@ -146,7 +143,7 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
             else if (minOverlap == overlapLeft)
             {
                 position.x = rect.x - halfWidth;
-                if (state == BotState::PATROL) patrolDir = 1.0f; // flip on wall
+                if (state == BotState::PATROL) patrolDir = 1.0f; 
             }
             else
             {
