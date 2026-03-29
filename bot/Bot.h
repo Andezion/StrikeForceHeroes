@@ -34,6 +34,8 @@ public:
 
     Weapon weapon;
 
+    bool showVisionDebug = true;
+
     [[nodiscard]] Rectangle GetRect() const;
     [[nodiscard]] bool IsDead() const { return health <= 0; }
 
@@ -47,7 +49,13 @@ private:
     BotState state;
     float idleTimer;
     float patrolTimer;
-    float patrolDir;   
+    float patrolDir;
+
+    Vector2 lastPlayerPos = { 0.0f, 0.0f };
+    bool    lastHasLOS    = false;
+
+    [[nodiscard]] bool HasLineOfSight(Vector2 playerPos,
+                                      const std::vector<EnvItem>& envItems) const;
 
     static constexpr float ATTACK_RANGE = 450.0f;
     static constexpr float HOR_SPEED    = 290.0f;
