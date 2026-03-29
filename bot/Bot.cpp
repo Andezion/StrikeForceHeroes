@@ -239,10 +239,8 @@ void Bot::Draw() const
                                              : Color{ 255, 50, 50, 200 };
         DrawLineV(eyePos, playerEye, losColor);
 
-        // Small dot at player eye target
         DrawCircleV(playerEye, 4.0f, losColor);
     }
-    // ─────────────────────────────────────────────────────────────────────────
 
     const Rectangle r = { position.x - halfWidth, position.y - fullHeight,
                            halfWidth * 2.0f, fullHeight };
