@@ -6,6 +6,40 @@
 #include <cmath>
 #include <cstdlib>
 
+// ── LOS helpers ──────────────────────────────────────────────────────────────
+
+// Returns true if segments P1-P2 and P3-P4 intersect
+static bool SegmentsIntersect(const Vector2 p1, const Vector2 p2,
+                               const Vector2 p3, const Vector2 p4)
+{
+    const float d1x = p2.x - p1.x,  d1y = p2.y - p1.y;
+    const float d2x = p4.x - p3.x,  d2y = p4.y - p3.y;
+
+    const float denom = d1x * d2y - d1y * d2x;
+    if (fabsf(denom) < 1e-6f) return false; // parallel
+
+    const float dx = p3.x - p1.x,   dy = p3.y - p1.y;
+    const float t  = (dx * d2y - dy * d2x) / denom;
+    const float u  = (dx * d1y - dy * d1x) / denom;
+
+    return (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f);
+}
+
+// Returns true if segment A-B intersects any edge of rect
+static bool SegmentIntersectsRect(const Vector2 a, const Vector2 b,
+                                   const Rectangle& rect)
+{
+    const Vector2 tl{ rect.x,              rect.y               };
+    const Vector2 tr{ rect.x + rect.width, rect.y               };
+    const Vector2 bl{ rect.x,              rect.y + rect.height };
+    const Vector2 br{ rect.x + rect.width, rect.y + rect.height };
+
+    return SegmentsIntersect(a, b, tl, tr)
+        || SegmentsIntersect(a, b, tr, br)
+        || SegmentsIntersect(a, b, br, bl)
+        || SegmentsIntersect(a, b, bl, tl);
+}
+
 Bot::Bot(const Vector2 startPos, const float difficulty, const float aggression)
     : position(startPos),
       speed(0.0f),
@@ -23,6 +57,21 @@ Bot::Bot(const Vector2 startPos, const float difficulty, const float aggression)
       patrolTimer(0.0f),
       patrolDir(1.0f)
 {}
+
+bool Bot::HasLineOfSight(const Vector2 playerPos,
+                         const std::vector<EnvItem>& envItems) const
+{
+    // Use chest height as eye position for both bot and player
+    const Vector2 botEye    = { position.x,  position.y  - 40.0f };
+    const Vector2 playerEye = { playerPos.x, playerPos.y - 40.0f };
+
+    for (const auto& [rect, blocking, color] : envItems)
+    {
+        if (!blocking) continue;
+        if (SegmentIntersectsRect(botEye, playerEye, rect)) return false;
+    }
+    return true;
+}
 
 Rectangle Bot::GetRect() const
 {
@@ -43,7 +92,12 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
     const float dy   = playerPos.y - position.y; 
     const float dist = sqrtf(dx * dx + dy * dy);
 
-    const bool playerVisible = (dist <= visionRadius);
+    const bool playerVisible = (dist <= visionRadius) &&
+                               HasLineOfSight(playerPos, envItems);
+
+    // Store for debug drawing
+    lastPlayerPos = playerPos;
+    lastHasLOS    = playerVisible;
 
     if (playerVisible)
     {
@@ -178,6 +232,27 @@ void Bot::Draw() const
         case BotState::ATTACK: bodyColor = Color{ 20,   70, 180, 255 }; break;
         default:               bodyColor = BLUE;
     }
+
+    // ── Debug vision visualisation ────────────────────────────────────────────
+    if (showVisionDebug)
+    {
+        const Vector2 eyePos = { position.x, position.y - 40.0f };
+
+        // Semi-transparent filled circle — vision radius
+        DrawCircleV(eyePos, visionRadius, Color{ 255, 255, 0, 18 });
+        // Circle outline
+        DrawCircleLinesV(eyePos, visionRadius, Color{ 255, 220, 0, 120 });
+
+        // Line from bot eye to player: green = clear LOS, red = blocked
+        const Vector2 playerEye = { lastPlayerPos.x, lastPlayerPos.y - 40.0f };
+        const Color   losColor  = lastHasLOS ? Color{ 0, 255, 80, 200 }
+                                             : Color{ 255, 50, 50, 200 };
+        DrawLineV(eyePos, playerEye, losColor);
+
+        // Small dot at player eye target
+        DrawCircleV(playerEye, 4.0f, losColor);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const Rectangle r = { position.x - halfWidth, position.y - fullHeight,
                            halfWidth * 2.0f, fullHeight };
