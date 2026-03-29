@@ -6,9 +6,6 @@
 #include <cmath>
 #include <cstdlib>
 
-// ── LOS helpers ──────────────────────────────────────────────────────────────
-
-// Returns true if segments P1-P2 and P3-P4 intersect
 static bool SegmentsIntersect(const Vector2 p1, const Vector2 p2,
                                const Vector2 p3, const Vector2 p4)
 {
@@ -16,7 +13,7 @@ static bool SegmentsIntersect(const Vector2 p1, const Vector2 p2,
     const float d2x = p4.x - p3.x,  d2y = p4.y - p3.y;
 
     const float denom = d1x * d2y - d1y * d2x;
-    if (fabsf(denom) < 1e-6f) return false; // parallel
+    if (fabsf(denom) < 1e-6f) return false; 
 
     const float dx = p3.x - p1.x,   dy = p3.y - p1.y;
     const float t  = (dx * d2y - dy * d2x) / denom;
@@ -25,7 +22,6 @@ static bool SegmentsIntersect(const Vector2 p1, const Vector2 p2,
     return (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f);
 }
 
-// Returns true if segment A-B intersects any edge of rect
 static bool SegmentIntersectsRect(const Vector2 a, const Vector2 b,
                                    const Rectangle& rect)
 {
@@ -61,7 +57,6 @@ Bot::Bot(const Vector2 startPos, const float difficulty, const float aggression)
 bool Bot::HasLineOfSight(const Vector2 playerPos,
                          const std::vector<EnvItem>& envItems) const
 {
-    // Use chest height as eye position for both bot and player
     const Vector2 botEye    = { position.x,  position.y  - 40.0f };
     const Vector2 playerEye = { playerPos.x, playerPos.y - 40.0f };
 
