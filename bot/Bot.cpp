@@ -172,10 +172,10 @@ void Bot::Draw() const
     Color bodyColor;
     switch (state)
     {
-        case BotState::IDLE:   bodyColor = Color{ 40,  110, 210, 255 }; break; 
-        case BotState::PATROL: bodyColor = Color{ 60,  140, 230, 255 }; break; 
-        case BotState::CHASE:  bodyColor = Color{ 220, 120,  20, 255 }; break; 
-        case BotState::ATTACK: bodyColor = Color{ 210,  35,  35, 255 }; break; 
+        case BotState::IDLE:   bodyColor = Color{ 40,  110, 210, 255 }; break;
+        case BotState::PATROL: bodyColor = Color{ 60,  140, 230, 255 }; break;
+        case BotState::CHASE:  bodyColor = Color{ 30,   90, 200, 255 }; break;
+        case BotState::ATTACK: bodyColor = Color{ 20,   70, 180, 255 }; break;
         default:               bodyColor = BLUE;
     }
 
@@ -188,7 +188,7 @@ void Bot::Draw() const
     const float barY     = position.y - fullHeight - 11.0f;
     DrawRectangleRec({ barX - 1.0f, barY - 1.0f, barWidth + 2.0f, 7.0f }, DARKGRAY);
     const float ratio = (maxHealth > 0) ? static_cast<float>(health) / static_cast<float>(maxHealth) : 0.0f;
-    DrawRectangleRec({ barX, barY, barWidth * ratio, 5.0f }, GREEN);
+    DrawRectangleRec({ barX, barY, barWidth * ratio, 5.0f }, RED);
 
     weapon.Draw();
 }
