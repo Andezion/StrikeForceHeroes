@@ -90,7 +90,6 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
     const bool playerVisible = (dist <= visionRadius) &&
                                HasLineOfSight(playerPos, envItems);
 
-    // Store for debug drawing
     lastPlayerPos = playerPos;
     lastHasLOS    = playerVisible;
 
@@ -228,17 +227,13 @@ void Bot::Draw() const
         default:               bodyColor = BLUE;
     }
 
-    // ── Debug vision visualisation ────────────────────────────────────────────
     if (showVisionDebug)
     {
         const Vector2 eyePos = { position.x, position.y - 40.0f };
 
-        // Semi-transparent filled circle — vision radius
         DrawCircleV(eyePos, visionRadius, Color{ 255, 255, 0, 18 });
-        // Circle outline
         DrawCircleLinesV(eyePos, visionRadius, Color{ 255, 220, 0, 120 });
 
-        // Line from bot eye to player: green = clear LOS, red = blocked
         const Vector2 playerEye = { lastPlayerPos.x, lastPlayerPos.y - 40.0f };
         const Color   losColor  = lastHasLOS ? Color{ 0, 255, 80, 200 }
                                              : Color{ 255, 50, 50, 200 };
