@@ -54,8 +54,11 @@ private:
     Vector2 lastPlayerPos = { 0.0f, 0.0f };
     bool    lastHasLOS    = false;
 
+    std::vector<Vector2> visibilityPolygon; // computed in Update, read in Draw
+
     [[nodiscard]] bool HasLineOfSight(Vector2 playerPos,
                                       const std::vector<EnvItem>& envItems) const;
+    void ComputeVisibilityPolygon(const std::vector<EnvItem>& envItems);
 
     static constexpr float ATTACK_RANGE = 450.0f;
     static constexpr float HOR_SPEED    = 290.0f;
