@@ -273,7 +273,6 @@ void Bot::Draw() const
             DrawTriangle(eye, b, a, Color{ 255, 255, 0, 28 });
         }
 
-        // Outline
         for (int i = 0, n = static_cast<int>(visibilityPolygon.size()); i < n; ++i)
         {
             const Vector2& a = visibilityPolygon[i];
@@ -281,7 +280,6 @@ void Bot::Draw() const
             DrawLineV(a, b, Color{ 255, 220, 0, 160 });
         }
 
-        // LOS line to player
         const Vector2 playerEye = { lastPlayerPos.x, lastPlayerPos.y - 40.0f };
         const Color   losColor  = lastHasLOS ? Color{ 0, 255, 80, 220 }
                                              : Color{ 255, 50, 50, 220 };
