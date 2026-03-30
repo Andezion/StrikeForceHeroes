@@ -6,34 +6,46 @@
 #include <cmath>
 #include <cstdlib>
 
-static bool SegmentsIntersect(const Vector2 p1, const Vector2 p2,
-                               const Vector2 p3, const Vector2 p4)
+// ── Ray casting helpers ───────────────────────────────────────────────────────
+
+// Returns t along ray O+t*D where it hits segment A-B, or -1 if no hit.
+static float RaySegmentT(const Vector2 O, const Vector2 D,
+                          const Vector2 A, const Vector2 B,
+                          const float maxT)
 {
-    const float d1x = p2.x - p1.x,  d1y = p2.y - p1.y;
-    const float d2x = p4.x - p3.x,  d2y = p4.y - p3.y;
+    const float ex = B.x - A.x, ey = B.y - A.y;
+    const float denom = D.x * ey - D.y * ex;
+    if (fabsf(denom) < 1e-6f) return -1.0f;
 
-    const float denom = d1x * d2y - d1y * d2x;
-    if (fabsf(denom) < 1e-6f) return false; 
+    const float fx = A.x - O.x, fy = A.y - O.y;
+    const float t  = (fx * ey - fy * ex) / denom;
+    const float s  = (fx * D.y - fy * D.x) / denom;
 
-    const float dx = p3.x - p1.x,   dy = p3.y - p1.y;
-    const float t  = (dx * d2y - dy * d2x) / denom;
-    const float u  = (dx * d1y - dy * d1x) / denom;
-
-    return (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f);
+    if (t < 0.0f || t > maxT || s < 0.0f || s > 1.0f) return -1.0f;
+    return t;
 }
 
-static bool SegmentIntersectsRect(const Vector2 a, const Vector2 b,
-                                   const Rectangle& rect)
+// Casts a single ray; returns hit distance (capped at maxDist)
+static float CastRay(const Vector2 origin, const Vector2 dir, const float maxDist,
+                     const std::vector<EnvItem>& envItems)
 {
-    const Vector2 tl{ rect.x,              rect.y               };
-    const Vector2 tr{ rect.x + rect.width, rect.y               };
-    const Vector2 bl{ rect.x,              rect.y + rect.height };
-    const Vector2 br{ rect.x + rect.width, rect.y + rect.height };
-
-    return SegmentsIntersect(a, b, tl, tr)
-        || SegmentsIntersect(a, b, tr, br)
-        || SegmentsIntersect(a, b, br, bl)
-        || SegmentsIntersect(a, b, bl, tl);
+    float minT = maxDist;
+    for (const auto& [rect, blocking, color] : envItems)
+    {
+        if (!blocking) continue;
+        const Vector2 corners[4] = {
+            { rect.x,              rect.y               },
+            { rect.x + rect.width, rect.y               },
+            { rect.x + rect.width, rect.y + rect.height },
+            { rect.x,              rect.y + rect.height }
+        };
+        for (int e = 0; e < 4; ++e)
+        {
+            const float t = RaySegmentT(origin, dir, corners[e], corners[(e + 1) % 4], minT);
+            if (t >= 0.0f && t < minT) minT = t;
+        }
+    }
+    return minT;
 }
 
 Bot::Bot(const Vector2 startPos, const float difficulty, const float aggression)
@@ -60,12 +72,32 @@ bool Bot::HasLineOfSight(const Vector2 playerPos,
     const Vector2 botEye    = { position.x,  position.y  - 40.0f };
     const Vector2 playerEye = { playerPos.x, playerPos.y - 40.0f };
 
-    for (const auto& [rect, blocking, color] : envItems)
+    const float dx   = playerEye.x - botEye.x;
+    const float dy   = playerEye.y - botEye.y;
+    const float dist = sqrtf(dx * dx + dy * dy);
+    if (dist < 1e-4f) return true;
+
+    const Vector2 dir = { dx / dist, dy / dist };
+    return CastRay(botEye, dir, dist, envItems) >= dist - 1.0f;
+}
+
+void Bot::ComputeVisibilityPolygon(const std::vector<EnvItem>& envItems)
+{
+    constexpr int RAY_COUNT = 180;
+    constexpr float TWO_PI  = 6.28318530718f;
+
+    const Vector2 eye = { position.x, position.y - 40.0f };
+
+    visibilityPolygon.clear();
+    visibilityPolygon.reserve(RAY_COUNT);
+
+    for (int i = 0; i < RAY_COUNT; ++i)
     {
-        if (!blocking) continue;
-        if (SegmentIntersectsRect(botEye, playerEye, rect)) return false;
+        const float angle = TWO_PI * static_cast<float>(i) / static_cast<float>(RAY_COUNT);
+        const Vector2 dir = { cosf(angle), sinf(angle) };
+        const float   hit = CastRay(eye, dir, visionRadius, envItems);
+        visibilityPolygon.push_back({ eye.x + dir.x * hit, eye.y + dir.y * hit });
     }
-    return true;
 }
 
 Rectangle Bot::GetRect() const
@@ -92,6 +124,9 @@ void Bot::Update(const float delta, const std::vector<EnvItem>& envItems,
 
     lastPlayerPos = playerPos;
     lastHasLOS    = playerVisible;
+
+    if (showVisionDebug)
+        ComputeVisibilityPolygon(envItems);
 
     if (playerVisible)
     {
@@ -227,18 +262,30 @@ void Bot::Draw() const
         default:               bodyColor = BLUE;
     }
 
-    if (showVisionDebug)
+    if (showVisionDebug && visibilityPolygon.size() >= 3)
     {
-        const Vector2 eyePos = { position.x, position.y - 40.0f };
+        const Vector2 eye = { position.x, position.y - 40.0f };
 
-        DrawCircleV(eyePos, visionRadius, Color{ 255, 255, 0, 18 });
-        DrawCircleLinesV(eyePos, visionRadius, Color{ 255, 220, 0, 120 });
+        for (int i = 0, n = static_cast<int>(visibilityPolygon.size()); i < n; ++i)
+        {
+            const Vector2& a = visibilityPolygon[i];
+            const Vector2& b = visibilityPolygon[(i + 1) % n];
+            DrawTriangle(eye, b, a, Color{ 255, 255, 0, 28 });
+        }
 
+        // Outline
+        for (int i = 0, n = static_cast<int>(visibilityPolygon.size()); i < n; ++i)
+        {
+            const Vector2& a = visibilityPolygon[i];
+            const Vector2& b = visibilityPolygon[(i + 1) % n];
+            DrawLineV(a, b, Color{ 255, 220, 0, 160 });
+        }
+
+        // LOS line to player
         const Vector2 playerEye = { lastPlayerPos.x, lastPlayerPos.y - 40.0f };
-        const Color   losColor  = lastHasLOS ? Color{ 0, 255, 80, 200 }
-                                             : Color{ 255, 50, 50, 200 };
-        DrawLineV(eyePos, playerEye, losColor);
-
+        const Color   losColor  = lastHasLOS ? Color{ 0, 255, 80, 220 }
+                                             : Color{ 255, 50, 50, 220 };
+        DrawLineV(eye, playerEye, losColor);
         DrawCircleV(playerEye, 4.0f, losColor);
     }
 
