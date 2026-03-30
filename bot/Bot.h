@@ -54,7 +54,7 @@ private:
     Vector2 lastPlayerPos = { 0.0f, 0.0f };
     bool    lastHasLOS    = false;
 
-    std::vector<Vector2> visibilityPolygon; // computed in Update, read in Draw
+    std::vector<Vector2> visibilityPolygon; 
 
     [[nodiscard]] bool HasLineOfSight(Vector2 playerPos,
                                       const std::vector<EnvItem>& envItems) const;
