@@ -6,9 +6,6 @@
 #include <cmath>
 #include <cstdlib>
 
-// ── Ray casting helpers ───────────────────────────────────────────────────────
-
-// Returns t along ray O+t*D where it hits segment A-B, or -1 if no hit.
 static float RaySegmentT(const Vector2 O, const Vector2 D,
                           const Vector2 A, const Vector2 B,
                           const float maxT)
@@ -25,7 +22,6 @@ static float RaySegmentT(const Vector2 O, const Vector2 D,
     return t;
 }
 
-// Casts a single ray; returns hit distance (capped at maxDist)
 static float CastRay(const Vector2 origin, const Vector2 dir, const float maxDist,
                      const std::vector<EnvItem>& envItems)
 {
